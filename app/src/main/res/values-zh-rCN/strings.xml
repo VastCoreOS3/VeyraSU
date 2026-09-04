@@ -256,10 +256,7 @@
     <string name="yellow_theme">黄色主题</string>
     <string name="about_app_version">版本 %1$s</string>
     <string name="about_app_desc">内核级 ROOT 解决方案且无需重新编译内核，同时提供挂载系统模块和 Hook 内核函数的能力。</string>
-    <string name="about_github" translatable="false">GitHub</string>
     <string name="about_weblate" translatable="false">Weblate</string>
-    <string name="about_telegram_channel">Telegram 频道</string>
-    <string name="about_telegram_group">Telegram 群组</string>
     <string name="about_powered_by">由 %1$s 强力驱动</string>
     <string name="apm_action">执行</string>
     <string name="settings_apm_stay_on_page">留在操作页面</string>
