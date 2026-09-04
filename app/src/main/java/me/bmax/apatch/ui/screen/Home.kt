@@ -112,23 +112,6 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.utils.overScrollVertical
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import me.bmax.apatch.BuildConfig
-import top.yukonga.miuix.kmp.basic.Surface
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import me.bmax.apatch.BuildConfig
 
 private val managerVersion = getManagerVersion()
 
@@ -422,7 +405,7 @@ private fun ClassicWorkCard(
                     Text(
                         text = when (kpState) {
                             APApplication.State.KERNELPATCH_INSTALLED ->
-                                stringResource(R.string.apatch_version, managerVersion.first, managerVersion.second)
+                                stringResource(R.string.apatch_version, managerVersion.first)
                             APApplication.State.KERNELPATCH_NEED_UPDATE ->
                                 "${Version.installedKPVString()} → ${Version.buildKPVString()}"
                             APApplication.State.UNKNOWN_STATE ->
@@ -557,7 +540,6 @@ private fun TopBar(
 ) {
     val uriHandler = LocalUriHandler.current
     val showDropdownMoreOptions = remember { mutableStateOf(false) }
-    val showAboutDialog = remember { mutableStateOf(false) }
     val howDropdownReboot = remember { mutableStateOf(false) }
     val rebootItems = listOf(
         stringResource(R.string.reboot),
@@ -567,10 +549,10 @@ private fun TopBar(
         stringResource(R.string.reboot_edl),
         stringResource(R.string.reboot_fastbootd),
     )
+    // ============ 修改这里：移除反馈，只保留关于 ============
     val moreItems = listOf(
         stringResource(R.string.home_more_menu_about)
     )
-
     TopAppBar(
         title = stringResource(R.string.app_name),
         actions = {
@@ -638,81 +620,15 @@ private fun TopBar(
                                     optionSize = moreItems.size,
                                     onSelectedIndexChange = {
                                         when (index) {
-                                            0 -> {
-                                                showDropdownMoreOptions.value = false
-                                                showAboutDialog.value = true
-                                            }
+                                            // 只保留跳转到关于页面，删掉反馈分支
+                                            0 -> navigator.navigate("about")
                                         }
+                                        showDropdownMoreOptions.value = false
                                     },
                                     index = index
                                 )
                             }
                         }
-                    }
-                }
-
-                // ========== ⚠️所有UI全部放在SuperDialog尾随大括号内部 ==========
-                SuperDialog(
-                    show = showAboutDialog.value,
-                    title = stringResource(R.string.about),
-                    onDismissRequest = { showAboutDialog.value = false }
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Surface(
-                            modifier = Modifier.size(75.dp),
-                            color = colorResource(id = R.color.ic_launcher_background),
-                            shape = CircleShape
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                contentDescription = stringResource(R.string.app_name),
-                                modifier = Modifier.scale(1.15f)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(id = R.string.app_name),
-                            style = MiuixTheme.textStyles.title4
-                        )
-                        Text(
-                            text = stringResource(
-                                id = R.string.about_app_version,
-                                if (BuildConfig.VERSION_NAME.contains(BuildConfig.VERSION_CODE.toString())) "${BuildConfig.VERSION_CODE}" else "${BuildConfig.VERSION_CODE} (${BuildConfig.VERSION_NAME})"
-                            ),
-                            style = MiuixTheme.textStyles.body2,
-                            color = MiuixTheme.colorScheme.onSurfaceVariantActions,
-                            modifier = Modifier.padding(top = 5.dp)
-                        )
-                        Text(
-                            text = stringResource(
-                                id = R.string.about_powered_by,
-                                "KernelPatch (${Version.buildKPVString()})"
-                            ),
-                            style = MiuixTheme.textStyles.body2,
-                            color = MiuixTheme.colorScheme.onSurfaceVariantActions,
-                            modifier = Modifier.padding(top = 5.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Card {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(all = 12.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.about_app_desc),
-                                    style = MiuixTheme.textStyles.body2,
-                                    color = MiuixTheme.colorScheme.onSurfaceVariantActions,
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
@@ -841,7 +757,7 @@ private fun StatusCard(
                         modifier = Modifier.fillMaxWidth(),
                         text = when (kpState) {
                             APApplication.State.KERNELPATCH_INSTALLED ->
-                                stringResource(R.string.apatch_version, managerVersion.first, managerVersion.second)
+                                stringResource(R.string.apatch_version, managerVersion.first)
                             APApplication.State.KERNELPATCH_NEED_UPDATE ->
                                 "${Version.installedKPVString()} → ${Version.buildKPVString()}"
                             else -> stringResource(R.string.home_click_to_install)
