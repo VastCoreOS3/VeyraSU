@@ -85,6 +85,7 @@ import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
 import me.bmax.apatch.util.APatchKeyHelper
 import me.bmax.apatch.util.PageScaleUtils
+import me.bmax.apatch.util.getBugreportFile
 import me.bmax.apatch.util.isGlobalNamespaceEnabled
 import me.bmax.apatch.util.isHideServiceEnabled
 import me.bmax.apatch.util.isMagicMountEnabled
