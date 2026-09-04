@@ -62,7 +62,7 @@ fun AboutScreen(navigator: TabNavigator) {
                 shape = CircleShape
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.about),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = stringResource(R.string.app_name),
                     modifier = Modifier.scale(1.15f)
                 )
