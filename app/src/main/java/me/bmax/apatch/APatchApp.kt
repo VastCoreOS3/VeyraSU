@@ -18,7 +18,6 @@ import me.bmax.apatch.ui.CrashHandleActivity
 import me.bmax.apatch.ui.component.KpmAutoLoadManager
 import me.bmax.apatch.util.APatchCli
 import me.bmax.apatch.util.APatchKeyHelper
-import me.bmax.apatch.util.LauncherIconUtils
 import me.bmax.apatch.util.Version
 import me.bmax.apatch.util.VisualConfig
 import me.bmax.apatch.util.getRootShell
@@ -335,7 +334,6 @@ class APApplication : Application(), Thread.UncaughtExceptionHandler {
                     )
                 }.build()
 
-        LauncherIconUtils.applySaved(this)
     }
 
     fun getBackupWarningState(): Boolean {
