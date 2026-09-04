@@ -1,0 +1,653 @@
+package me.bmax.apatch.ui
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.net.Uri
+import android.os.Bundle
+import android.content.SharedPreferences
+import android.view.WindowManager
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.Crossfade
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Velocity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.Coil
+import coil.ImageLoader
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeSource
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.bmax.apatch.APApplication
+import me.bmax.apatch.R
+import me.bmax.apatch.ui.component.FloatingBottomBar
+import me.bmax.apatch.ui.component.FloatingBottomBarItem
+import me.bmax.apatch.ui.component.rememberConfirmCallback
+import me.bmax.apatch.ui.component.rememberConfirmDialog
+import me.bmax.apatch.ui.component.rememberLoadingDialog
+import me.bmax.apatch.ui.component.UpdateDialog
+import me.bmax.apatch.ui.screen.BottomBarDestination
+import me.bmax.apatch.ui.screen.ExternalNavEvent
+import me.bmax.apatch.ui.screen.LocalExternalNavEvent
+import me.bmax.apatch.ui.screen.MainScreen
+import me.bmax.apatch.ui.theme.APatchTheme
+import me.bmax.apatch.ui.theme.LocalEnableBlur
+import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
+import me.bmax.apatch.ui.theme.LocalEnableLiquidGlass
+import me.bmax.apatch.ui.theme.LocalBottomBarVisible
+import me.bmax.apatch.ui.theme.LocalMainPagerState
+import me.bmax.apatch.ui.theme.LocalVisibleDestinations
+import me.bmax.apatch.ui.theme.migrateColorModeIfNeeded
+import me.bmax.apatch.ui.MainPagerState
+import me.bmax.apatch.ui.viewmodel.APModuleViewModel
+import me.bmax.apatch.util.ModuleParser
+import me.bmax.apatch.util.UpdateChecker
+import me.bmax.apatch.util.VisualConfig
+import me.bmax.apatch.util.ui.defaultHazeEffect
+import me.zhanghai.android.appiconloader.coil.AppIconFetcher
+import me.zhanghai.android.appiconloader.coil.AppIconKeyer
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.NavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationBarItem
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import kotlin.math.abs
+
+class MainActivity : AppCompatActivity() {
+
+    private var isLoading = true
+    private var pendingShortcutModuleId: String? = null
+    private val installUriChannel = Channel<Uri>(Channel.BUFFERED)
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        installSplashScreen().setKeepOnScreenCondition { isLoading }
+
+        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        super.onCreate(savedInstanceState)
+
+        pendingShortcutModuleId = intent.getStringExtra("module_id")?.takeIf {
+            intent.getStringExtra("shortcut_type") == "module_action"
+        }
+
+        me.bmax.apatch.util.PageScaleUtils.load(this)
+
+        // Migrate color mode from 0.7.x to 0.8.x ordering
+        migrateColorModeIfNeeded(this)
+
+        // Disables automatic window adjustment when the soft keyboard appears
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+
+        val uri: Uri? = intent.data ?: run {
+            if (intent.action == android.content.Intent.ACTION_SEND) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM)
+                }
+            } else {
+                null
+            }
+        }
+
+        val shortcutType = intent.getStringExtra("shortcut_type")
+        val shortcutModuleId = intent.getStringExtra("module_id")
+        val isFromShortcut = shortcutType == "module_action" && !shortcutModuleId.isNullOrEmpty()
+
+        setContent {
+            val context = LocalActivity.current ?: this
+            val prefs = context.getSharedPreferences("config", MODE_PRIVATE)
+            var colorMode by remember { mutableIntStateOf(prefs.getInt("color_mode", 0)) }
+            var keyColorInt by remember { mutableIntStateOf(VisualConfig.keyColor) }
+            val keyColor = remember(keyColorInt) {
+                if (keyColorInt == 0) null else Color(keyColorInt)
+            }
+
+            // Visual effect config
+            var enableBlur by remember { mutableStateOf(VisualConfig.enableBlur) }
+            var enableFloatingBottomBar by remember { mutableStateOf(VisualConfig.enableFloatingBottomBar) }
+            var floatingBottomBarAutoHide by remember { mutableStateOf(VisualConfig.floatingBottomBarAutoHide) }
+            var floatingBottomBarScrollHide by remember { mutableStateOf(VisualConfig.floatingBottomBarScrollHide) }
+            var enableLiquidGlass by remember { mutableStateOf(VisualConfig.enableLiquidGlass) }
+
+            DisposableEffect(prefs) {
+                val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    when (key) {
+                        "color_mode" -> colorMode = prefs.getInt("color_mode", 0)
+                        "key_color" -> keyColorInt = VisualConfig.keyColor
+                        "enable_blur" -> enableBlur = VisualConfig.enableBlur
+                        "enable_floating_bottom_bar" -> enableFloatingBottomBar = VisualConfig.enableFloatingBottomBar
+                        "floating_bottom_bar_auto_hide" -> floatingBottomBarAutoHide = VisualConfig.floatingBottomBarAutoHide
+                        "floating_bottom_bar_scroll_hide" -> floatingBottomBarScrollHide = VisualConfig.floatingBottomBarScrollHide
+                        "enable_liquid_glass" -> enableLiquidGlass = VisualConfig.enableLiquidGlass
+                    }
+                }
+                prefs.registerOnSharedPreferenceChangeListener(listener)
+                onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+            }
+
+            APatchTheme(colorMode = colorMode, keyColor = keyColor) {
+
+                    val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+                    val kPatchReady = state != APApplication.State.UNKNOWN_STATE
+                    val aPatchReady = state == APApplication.State.ANDROIDPATCH_INSTALLED
+                    val prefs = APApplication.sharedPreferences
+                    var showNavApm by remember { mutableStateOf(prefs.getBoolean("show_nav_apm", true)) }
+                    var showNavKpm by remember { mutableStateOf(prefs.getBoolean("show_nav_kpm", false)) }
+                    var showNavSuperUser by remember { mutableStateOf(prefs.getBoolean("show_nav_superuser", true)) }
+
+                    DisposableEffect(Unit) {
+                        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+                            when (key) {
+                                "show_nav_apm" -> showNavApm = sharedPrefs.getBoolean(key, true)
+                                "show_nav_kpm" -> showNavKpm = sharedPrefs.getBoolean(key, false)
+                                "show_nav_superuser" -> showNavSuperUser = sharedPrefs.getBoolean(key, true)
+                            }
+                        }
+                        prefs.registerOnSharedPreferenceChangeListener(listener)
+                        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+                    }
+
+                    val visibleDestinations = BottomBarDestination.entries
+                        .filter { d ->
+                            !(d.kPatchRequired && !kPatchReady) &&
+                                    !(d.aPatchRequired && !aPatchReady) &&
+                            when (d) {
+                                BottomBarDestination.AModule -> showNavApm
+                                BottomBarDestination.KModule -> showNavKpm
+                                BottomBarDestination.SuperUser -> showNavSuperUser
+                                else -> true
+                            }
+                        }
+
+                    val bottomBarVisibleState = remember { mutableStateOf(true) }
+                    val pageScale = me.bmax.apatch.util.PageScaleUtils.currentScale
+                    val systemDensity = LocalDensity.current
+                    val scaledDensity = remember(systemDensity, pageScale) {
+                        Density(systemDensity.density * pageScale, systemDensity.fontScale)
+                    }
+
+                    val pagerState = rememberPagerState(
+                        initialPage = 0,
+                        pageCount = { visibleDestinations.size }
+                    )
+                    val coroutineScope = rememberCoroutineScope()
+                    val mainPagerState = remember(pagerState, coroutineScope, scaledDensity) {
+                        MainPagerState(pagerState, coroutineScope, scaledDensity)
+                    }
+
+                    CompositionLocalProvider(
+                    LocalDensity provides scaledDensity,
+                    LocalEnableBlur provides enableBlur,
+                    LocalEnableFloatingBottomBar provides enableFloatingBottomBar,
+                    LocalEnableLiquidGlass provides enableLiquidGlass,
+                ) {
+                    CompositionLocalProvider(
+                        LocalBottomBarVisible provides bottomBarVisibleState,
+                        LocalMainPagerState provides mainPagerState,
+                        LocalVisibleDestinations provides visibleDestinations,
+                    ) {
+                    val loadingDialog = rememberLoadingDialog()
+
+                    var showUpdateDialog by remember { mutableStateOf(false) }
+                    var updateChecked by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(Unit) {
+                        if (!updateChecked) {
+                            val checkUpdate = APApplication.sharedPreferences.getBoolean("check_update", true)
+                            if (checkUpdate) {
+                                val hasUpdate = withContext(Dispatchers.IO) {
+                                    try {
+                                        UpdateChecker.checkUpdate()
+                                    } catch (e: Exception) {
+                                        false
+                                    }
+                                }
+                                if (hasUpdate) {
+                                    showUpdateDialog = true
+                                }
+                            }
+                            updateChecked = true
+                        }
+                    }
+
+                    var externalNavEvent by remember { mutableStateOf<ExternalNavEvent?>(null) }
+                    var navEventConsumed by remember { mutableStateOf(false) }
+
+                    val currentUri by rememberUpdatedState(uri)
+                    LaunchedEffect(currentUri) {
+                        currentUri?.let { navUri ->
+                            externalNavEvent = ExternalNavEvent.InstallApk(navUri)
+                        }
+                    }
+
+                    LaunchedEffect(Unit) {
+                        installUriChannel.receiveAsFlow().collect { channelUri ->
+                            externalNavEvent = ExternalNavEvent.InstallApk(channelUri)
+                        }
+                    }
+
+                    if (isFromShortcut) {
+                        LaunchedEffect(Unit) {
+                            externalNavEvent = ExternalNavEvent.ExecuteAction(shortcutModuleId)
+                            pendingShortcutModuleId = null
+                        }
+                    }
+
+                    val pendingShortcut by rememberUpdatedState(pendingShortcutModuleId)
+                    LaunchedEffect(pendingShortcut) {
+                        val shortcutId = pendingShortcut
+                        if (shortcutId != null && !isFromShortcut) {
+                            externalNavEvent = ExternalNavEvent.ExecuteAction(shortcutId)
+                            pendingShortcutModuleId = null
+                        }
+                    }
+
+                    val showBottomBarRoute = true
+
+                    var isBottomBarVisible by remember { mutableStateOf(true) }
+                    var autoHideKey by remember { mutableStateOf(0) }
+                    val isScrollingDown = remember { mutableStateOf(false) }
+                    val scrollOffset = remember { mutableStateOf(0f) }
+                    val previousScrollOffset = remember { mutableStateOf(0f) }
+
+                    fun resetBottomBarAutoHide() {
+                        isBottomBarVisible = true
+                        autoHideKey++
+                    }
+
+                    val scrollConnection = remember {
+                        object : NestedScrollConnection {
+                            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                                val delta = available.y
+                                if (delta != 0f) {
+                                    resetBottomBarAutoHide()
+                                }
+                                val newOffset = scrollOffset.value + delta
+                                scrollOffset.value = newOffset
+                                val scrollDelta = previousScrollOffset.value - newOffset
+                                if (abs(scrollDelta) > 50f) {
+                                    isScrollingDown.value = scrollDelta > 0
+                                    previousScrollOffset.value = newOffset
+                                }
+                                return Offset.Zero
+                            }
+
+                            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                                previousScrollOffset.value = scrollOffset.value
+                                return super.onPostFling(consumed, available)
+                            }
+                        }
+                    }
+
+                    LaunchedEffect(enableFloatingBottomBar, autoHideKey, floatingBottomBarAutoHide) {
+                        if (enableFloatingBottomBar && floatingBottomBarAutoHide && isBottomBarVisible) {
+                            delay(3000L)
+                            isBottomBarVisible = false
+                        }
+                    }
+
+                    val showBottomBar = if (enableFloatingBottomBar) {
+                        showBottomBarRoute && isBottomBarVisible && !(floatingBottomBarScrollHide && isScrollingDown.value)
+                    } else {
+                        showBottomBarRoute
+                    }
+
+                    bottomBarVisibleState.value = showBottomBar
+
+                    // Haze state for standard blur mode
+                    val hazeState = remember(enableBlur, enableFloatingBottomBar) {
+                        try {
+                            if (enableBlur || enableFloatingBottomBar) HazeState() else null
+                        } catch (_: Throwable) {
+                            VisualConfig.enableBlur = false
+                            VisualConfig.enableFloatingBottomBar = false
+                            null
+                        }
+                    }
+                    val hazeStyle = if (enableBlur && hazeState != null) {
+                        HazeStyle(
+                            backgroundColor = MiuixTheme.colorScheme.surface,
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.8f))
+                        )
+                    } else {
+                        HazeStyle.Unspecified
+                    }
+
+                    val backdrop = if (enableFloatingBottomBar && hazeState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val surfaceColorState = rememberUpdatedState(MiuixTheme.colorScheme.surface)
+                        rememberLayerBackdrop {
+                            drawRect(surfaceColorState.value)
+                            drawContent()
+                        }
+                    } else null
+
+                    LaunchedEffect(enableBlur, enableFloatingBottomBar, enableLiquidGlass) {
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                            if (enableBlur) VisualConfig.enableBlur = false
+                            if (enableFloatingBottomBar) VisualConfig.enableFloatingBottomBar = false
+                            if (enableLiquidGlass) VisualConfig.enableLiquidGlass = false
+                        }
+                    }
+
+                    Scaffold(
+                        containerColor = MiuixTheme.colorScheme.surface,
+                        bottomBar = {
+                            if (enableFloatingBottomBar && backdrop != null) {
+                                val animatedOffsetY by animateDpAsState(
+                                    targetValue = if (showBottomBar) 0.dp else 200.dp,
+                                    animationSpec = tween(durationMillis = 300),
+                                    label = "floatingBarOffset"
+                                )
+                                Box(modifier = Modifier.offset(y = animatedOffsetY)) {
+                                    BottomBar(
+                                        mainPagerState = mainPagerState,
+                                        enableBlur = enableBlur,
+                                        enableFloatingBottomBar = true,
+                                        enableLiquidGlass = enableLiquidGlass,
+                                        hazeState = hazeState,
+                                        hazeStyle = hazeStyle,
+                                        backdrop = backdrop,
+                                        onUserInteraction = { resetBottomBarAutoHide() },
+                                    )
+                                }
+                            } else if (showBottomBar) {
+                                BottomBar(
+                                    mainPagerState = mainPagerState,
+                                    enableBlur = enableBlur,
+                                    enableFloatingBottomBar = false,
+                                    enableLiquidGlass = false,
+                                    hazeState = hazeState,
+                                    hazeStyle = hazeStyle,
+                                    backdrop = backdrop,
+                                )
+                            }
+                        }
+                    ) {
+                        CompositionLocalProvider(
+                            LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
+                        ) {
+                        MainScreen(
+                            modifier = Modifier
+                                .then(
+                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
+                                    else Modifier
+                                )
+                                .padding(bottom = if (showBottomBar) {
+                                    if (enableFloatingBottomBar) 0.dp else 65.dp
+                                } else 0.dp)
+                                .then(
+                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
+                                    else Modifier
+                                )
+                                .then(
+                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                        Modifier.layerBackdrop(backdrop)
+                                    else Modifier
+                                ),
+                            onExternalNavConsumed = { navEventConsumed = true },
+                        )
+                        } // end LocalExternalNavEvent CompositionLocalProvider
+                    } // end Scaffold content
+
+                // Update dialog
+                if (showUpdateDialog) {
+                    UpdateDialog(
+                        onDismiss = { showUpdateDialog = false },
+                        onUpdate = {
+                            UpdateChecker.openUpdateUrl(applicationContext)
+                            showUpdateDialog = false
+                        }
+                    )
+                }
+                    } // end CompositionLocalProvider
+                } // end outer CompositionLocalProvider
+            } // end APatchTheme
+        } // end setContent
+
+        // Initialize Coil
+        val iconSize = resources.getDimensionPixelSize(android.R.dimen.app_icon_size)
+        Coil.setImageLoader(
+            ImageLoader.Builder(this)
+                .components {
+                    add(AppIconKeyer())
+                    add(AppIconFetcher.Factory(iconSize, false, this@MainActivity))
+                }
+                .build()
+        )
+
+        isLoading = false
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val shortcutType = intent.getStringExtra("shortcut_type")
+        val moduleId = intent.getStringExtra("module_id")
+        if (shortcutType == "module_action" && !moduleId.isNullOrEmpty()) {
+            pendingShortcutModuleId = moduleId
+        }
+        val zipUri: Uri? = intent.data ?: run {
+            if (intent.action == android.content.Intent.ACTION_SEND) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM)
+                }
+            } else {
+                null
+            }
+        }
+        if (zipUri != null && shortcutType == null) {
+            installUriChannel.trySend(zipUri)
+        }
+    }
+}
+
+@Composable
+private fun BottomBar(
+    mainPagerState: MainPagerState,
+    enableBlur: Boolean,
+    enableFloatingBottomBar: Boolean,
+    enableLiquidGlass: Boolean,
+    hazeState: HazeState?,
+    hazeStyle: HazeStyle,
+    backdrop: com.kyant.backdrop.Backdrop?,
+    onUserInteraction: (() -> Unit)? = null,
+) {
+    val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+
+    val prefs = APApplication.sharedPreferences
+    var showNavApm by remember { mutableStateOf(prefs.getBoolean("show_nav_apm", true)) }
+    var showNavKpm by remember { mutableStateOf(prefs.getBoolean("show_nav_kpm", false)) }
+    var showNavSuperUser by remember { mutableStateOf(prefs.getBoolean("show_nav_superuser", true)) }
+
+    DisposableEffect(Unit) {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+            when (key) {
+                "show_nav_apm" -> showNavApm = sharedPrefs.getBoolean(key, true)
+                "show_nav_kpm" -> showNavKpm = sharedPrefs.getBoolean(key, false)
+                "show_nav_superuser" -> showNavSuperUser = sharedPrefs.getBoolean(key, true)
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+
+    val kPatchReady = state != APApplication.State.UNKNOWN_STATE
+    val aPatchReady = state == APApplication.State.ANDROIDPATCH_INSTALLED
+
+    val visibleDestinations = BottomBarDestination.entries
+        .filter { d ->
+            !(d.kPatchRequired && !kPatchReady) &&
+                    !(d.aPatchRequired && !aPatchReady) &&
+            when (d) {
+                BottomBarDestination.AModule -> showNavApm
+                BottomBarDestination.KModule -> showNavKpm
+                BottomBarDestination.SuperUser -> showNavSuperUser
+                else -> true
+            }
+        }
+
+    Crossfade(
+        targetState = state,
+        label = "BottomBarStateCrossfade"
+    ) { state ->
+        val visibleDestinations = visibleDestinations
+
+        val selectedIndex = mainPagerState.selectedPage.coerceIn(0, (visibleDestinations.size - 1).coerceAtLeast(0))
+
+        val navigateToPage: (index: Int) -> Unit = { index ->
+            onUserInteraction?.invoke()
+            mainPagerState.animateToPage(index)
+        }
+
+        if (enableFloatingBottomBar && backdrop != null) {
+            val safeBackdrop = backdrop
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                FloatingBottomBar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {},
+                        )
+                        .padding(
+                            bottom = 12.dp + WindowInsets.navigationBars
+                                .asPaddingValues().calculateBottomPadding()
+                        ),
+                    selectedIndex = { selectedIndex },
+                    onSelected = navigateToPage,
+                    backdrop = safeBackdrop,
+                    tabsCount = visibleDestinations.size,
+                    isBackdropBlurEnabled = enableBlur,
+                    isLiquidGlassEnabled = enableBlur && enableLiquidGlass,
+                ) {
+                    visibleDestinations.forEachIndexed { _, destination ->
+                        FloatingBottomBarItem(
+                            onClick = {
+                                val idx = visibleDestinations.indexOf(destination)
+                                if (idx >= 0) navigateToPage(idx)
+                            },
+                            modifier = Modifier.defaultMinSize(minWidth = 76.dp)
+                        ) {
+                            Icon(
+                                imageVector = destination.iconNotSelected,
+                                contentDescription = stringResource(destination.label),
+                                tint = MiuixTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(destination.label),
+                                fontSize = 11.sp,
+                                lineHeight = 14.sp,
+                                color = MiuixTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Visible
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            NavigationBar(
+                modifier = if (enableBlur && hazeState != null) {
+                    Modifier.defaultHazeEffect(hazeState, hazeStyle)
+                } else Modifier,
+                color = if (enableBlur) Color.Transparent else MiuixTheme.colorScheme.surface,
+                content = {
+                    visibleDestinations.forEachIndexed { index, destination ->
+                        NavigationBarItem(
+                            icon = if (index == selectedIndex) destination.iconSelected else destination.iconNotSelected,
+                            label = stringResource(destination.label),
+                            selected = index == selectedIndex,
+                            onClick = { navigateToPage(index) }
+                        )
+                    }
+                }
+            )
+        }
+    }
+}

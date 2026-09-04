@@ -1,0 +1,630 @@
+package me.bmax.apatch.ui.screen
+
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import me.bmax.apatch.ui.screen.TabNavigator
+
+import com.topjohnwu.superuser.nio.ExtendedFile
+import com.topjohnwu.superuser.nio.FileSystemManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.bmax.apatch.APApplication
+import me.bmax.apatch.Natives
+import me.bmax.apatch.R
+import me.bmax.apatch.apApp
+import me.bmax.apatch.ui.component.ConfirmResult
+import me.bmax.apatch.ui.component.IconTextButton
+import me.bmax.apatch.ui.component.LoadingDialogHandle
+import me.bmax.apatch.ui.component.rememberConfirmDialog
+import me.bmax.apatch.ui.component.rememberLoadingDialog
+import me.bmax.apatch.ui.theme.LocalBottomBarVisible
+import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
+import me.bmax.apatch.ui.viewmodel.KPModel
+import me.bmax.apatch.ui.viewmodel.KPModuleViewModel
+import me.bmax.apatch.ui.viewmodel.PatchesViewModel
+import me.bmax.apatch.util.cacheToLocalFile
+import me.bmax.apatch.util.inputStream
+import me.bmax.apatch.util.writeTo
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.DropdownImpl
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.ListPopupDefaults
+import top.yukonga.miuix.kmp.basic.PopupPositionProvider
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.extra.SuperDialog
+import top.yukonga.miuix.kmp.extra.SuperListPopup
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.InputField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
+import java.io.IOException
+import top.yukonga.miuix.kmp.basic.VerticalScrollBar
+import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
+import top.yukonga.miuix.kmp.basic.rememberScrollBarAdapter
+
+private const val TAG = "KernelPatchModule"
+private lateinit var targetKPMToControl: KPModel.KPMInfo
+
+@Composable
+fun KPModuleScreen(navigator: TabNavigator) {
+
+    val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+    if (state == APApplication.State.UNKNOWN_STATE) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row {
+                Text(
+                    text = stringResource(id = R.string.kpm_kp_not_installed),
+                    style = MiuixTheme.textStyles.body2
+                )
+            }
+        }
+        return
+    }
+
+    val viewModel = viewModel<KPModuleViewModel>()
+
+    LaunchedEffect(Unit) {
+        if (viewModel.moduleList.isEmpty() || viewModel.isNeedRefresh) {
+            viewModel.fetchModuleList()
+        }
+    }
+
+    val kpModuleListState = rememberLazyListState()
+
+    Scaffold(
+        topBar = { TopBar(navigator) },
+        floatingActionButton = {
+            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
+
+            val moduleLoad = stringResource(id = R.string.kpm_load)
+            val moduleInstall = stringResource(id = R.string.kpm_install)
+            val moduleEmbed = stringResource(id = R.string.kpm_embed)
+            val moduleAutoLoadConfig = stringResource(id = R.string.kpm_autoload_fab_title)
+            val successToastText = stringResource(id = R.string.kpm_load_toast_succ)
+            val failToastText = stringResource(id = R.string.kpm_load_toast_failed)
+            val loadingDialog = rememberLoadingDialog()
+
+            val selectZipLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) {
+                if (it.resultCode != RESULT_OK) return@rememberLauncherForActivityResult
+                val data = it.data ?: return@rememberLauncherForActivityResult
+                val uri = data.data ?: return@rememberLauncherForActivityResult
+                Log.i(TAG, "select zip result: $uri")
+                scope.launch {
+                    val cachedFile = withContext(Dispatchers.IO) {
+                        uri.cacheToLocalFile()
+                    }
+                    val installUri = if (cachedFile != null) Uri.fromFile(cachedFile) else uri
+                    navigator.navigate("install_kpm/${android.net.Uri.encode(installUri.toString())}/KPM")
+                }
+            }
+
+            val selectKpmLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) {
+                if (it.resultCode != RESULT_OK) return@rememberLauncherForActivityResult
+                val data = it.data ?: return@rememberLauncherForActivityResult
+                val uri = data.data ?: return@rememberLauncherForActivityResult
+
+                scope.launch {
+                    val cachedFile = withContext(Dispatchers.IO) {
+                        uri.cacheToLocalFile()
+                    }
+                    val loadUri = if (cachedFile != null) Uri.fromFile(cachedFile) else uri
+                    val rc = loadModule(loadingDialog, loadUri, "") == 0
+                    val toastText = if (rc) successToastText else failToastText
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+                    }
+                    viewModel.markNeedRefresh()
+                    viewModel.fetchModuleList()
+                }
+            }
+
+            val expanded = remember { mutableStateOf(false) }
+            val options = listOf(moduleEmbed, moduleInstall, moduleLoad, moduleAutoLoadConfig)
+
+            val isFloatingMode = LocalEnableFloatingBottomBar.current
+            val bottomBarVisible = LocalBottomBarVisible.current.value
+            val configuration = LocalConfiguration.current
+            val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val animatedOffset by animateDpAsState(
+                targetValue = if (isFloatingMode && bottomBarVisible && !isLandscape) (-56).dp else 0.dp,
+                animationSpec = tween(durationMillis = 300),
+                label = "fabOffset"
+            )
+            val fabContent: @Composable () -> Unit = {
+                Column {
+                    IconButton(
+                        onClick = { expanded.value = !expanded.value },
+                        modifier = Modifier
+                            .padding(bottom = 30.dp)
+                            .size(52.dp)
+                            .border(1.dp, MiuixTheme.colorScheme.primary, CircleShape)
+                            .background(MiuixTheme.colorScheme.surface, CircleShape)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.package_import),
+                            contentDescription = null,
+                            tint = MiuixTheme.colorScheme.primary
+                        )
+                    }
+
+                    SuperListPopup(
+                        show = expanded.value,
+                        popupPositionProvider = ListPopupDefaults.ContextMenuPositionProvider,
+                        alignment = PopupPositionProvider.Align.BottomEnd,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+
+                        ListPopupColumn {
+                            options.forEachIndexed { index, label ->
+                                DropdownImpl(
+                                    text = label,
+                                    isSelected = false,
+                                    optionSize = options.size,
+                                    index = index,
+                                    onSelectedIndexChange = {
+                                        when (label) {
+                                            moduleEmbed -> navigator.navigate(
+                                                "patches/${PatchesViewModel.PatchMode.PATCH_AND_INSTALL.ordinal}"
+                                            )
+
+                                            moduleInstall -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Under development",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+
+                                            moduleLoad -> {
+                                                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                                                intent.type = "*/*"
+                                                selectKpmLauncher.launch(intent)
+                                            }
+
+                                            moduleAutoLoadConfig -> {
+                                                navigator.navigate("kpm_auto_load_config")
+                                            }
+                                        }
+                                        expanded.value = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            if (isFloatingMode) {
+                Box(modifier = Modifier.offset(y = animatedOffset)) {
+                    fabContent()
+                }
+            } else {
+                fabContent()
+            }
+        }
+    ) { innerPadding ->
+        KPModuleList(
+            viewModel = viewModel,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            state = kpModuleListState,
+        )
+    }
+}
+
+
+suspend fun loadModule(loadingDialog: LoadingDialogHandle, uri: Uri, args: String): Int {
+    val rc = loadingDialog.withLoading {
+        withContext(Dispatchers.IO) {
+            run {
+                val kpmDir: ExtendedFile =
+                    FileSystemManager.getLocal().getFile(apApp.filesDir.parent, "kpm")
+                kpmDir.deleteRecursively()
+                kpmDir.mkdirs()
+                val rand = (1..4).map { ('a'..'z').random() }.joinToString("")
+                val kpm = kpmDir.getChildFile("${rand}.kpm")
+                Log.d(TAG, "save tmp kpm: ${kpm.path}")
+                var rc = -1
+                try {
+                    uri.inputStream().buffered().writeTo(kpm)
+                    rc = Natives.loadKernelPatchModule(kpm.path, args).toInt()
+                } catch (e: IOException) {
+                    Log.e(TAG, "Copy kpm error: $e")
+                }
+                Log.d(TAG, "load ${kpm.path} rc: $rc")
+                rc
+            }
+        }
+    }
+    return rc
+}
+
+@Composable
+fun KPMControlDialog(ControlDialog: MutableState<Boolean>) {
+    var controlParam by remember { mutableStateOf("") }
+    var enable by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val loadingDialog = rememberLoadingDialog()
+    val context = LocalContext.current
+    val outMsgStringRes = stringResource(id = R.string.kpm_control_outMsg)
+    val okStringRes = stringResource(id = R.string.kpm_control_ok)
+    val failedStringRes = stringResource(id = R.string.kpm_control_failed)
+
+    lateinit var controlResult: Natives.KPMCtlRes
+
+    suspend fun onModuleControl(module: KPModel.KPMInfo) {
+        loadingDialog.withLoading {
+            withContext(Dispatchers.IO) {
+                controlResult = Natives.kernelPatchModuleControl(module.name, controlParam)
+            }
+        }
+
+        if (controlResult.rc >= 0) {
+            Toast.makeText(
+                context,
+                "$okStringRes\n${outMsgStringRes}: ${controlResult.outMsg}",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Toast.makeText(
+                context,
+                "$failedStringRes\n${outMsgStringRes}: ${controlResult.outMsg}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    SuperDialog(
+        title = stringResource(R.string.kpm_control_dialog_title),
+        summary = stringResource(R.string.kpm_control_dialog_content),
+        show = ControlDialog.value,
+        onDismissRequest = { ControlDialog.value = false }
+    ) {
+        TextField(
+            value = controlParam,
+            label = stringResource(id = R.string.kpm_control_paramters),
+            onValueChange = {
+                controlParam = it
+                enable = controlParam.isNotBlank()
+            }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                text = stringResource(android.R.string.cancel),
+                onClick = {
+                    ControlDialog.value = false
+                },
+                modifier = Modifier.weight(1f),
+            )
+
+            Spacer(Modifier.width(20.dp))
+
+            TextButton(
+                text = stringResource(android.R.string.ok),
+                onClick = {
+                    ControlDialog.value = false
+                    scope.launch { onModuleControl(targetKPMToControl) }
+                },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.textButtonColorsPrimary(),
+                enabled = enable
+            )
+        }
+    }
+}
+
+@Composable
+private fun KPModuleList(
+    viewModel: KPModuleViewModel,
+    modifier: Modifier = Modifier,
+    state: LazyListState,
+) {
+    val moduleStr = stringResource(id = R.string.kpm)
+    val moduleUninstallConfirm = stringResource(id = R.string.kpm_unload_confirm)
+    val uninstall = stringResource(id = R.string.kpm_unload)
+    val cancel = stringResource(id = android.R.string.cancel)
+
+    val confirmDialog = rememberConfirmDialog()
+    val loadingDialog = rememberLoadingDialog()
+    val ControlDialog = remember { mutableStateOf(false) }
+
+    val pullToRefreshState = rememberPullToRefreshState()
+    var expanded by remember { mutableStateOf(false) }
+
+    suspend fun onModuleUninstall(module: KPModel.KPMInfo) {
+        val confirmResult = confirmDialog.awaitConfirm(
+            moduleStr,
+            content = moduleUninstallConfirm.format(module.name),
+            confirm = uninstall,
+            dismiss = cancel
+        )
+        if (confirmResult != ConfirmResult.Confirmed) {
+            return
+        }
+
+        val success = loadingDialog.withLoading {
+            withContext(Dispatchers.IO) {
+                Natives.unloadKernelPatchModule(module.name) == 0L
+            }
+        }
+
+        if (success) {
+            viewModel.fetchModuleList()
+        }
+    }
+    PullToRefresh(
+        modifier = modifier,
+        isRefreshing = viewModel.isRefreshing,
+        pullToRefreshState = pullToRefreshState,
+        onRefresh = { viewModel.fetchModuleList() }
+    ) {
+        @OptIn(ExperimentalScrollBarApi::class)
+        val kpmScrollBarAdapter = rememberScrollBarAdapter(state)
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 5.dp)
+                .zIndex(10f)
+        ) {
+            InputField(
+                query = viewModel.search,
+                onQueryChange = { viewModel.search = it },
+                onSearch = { expanded = false },
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = it
+                    if (!it) viewModel.search = ""
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            )
+        }
+        Row(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = remember {
+                    PaddingValues(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp
+                    )
+                }
+            ) {
+                when {
+                    viewModel.moduleList.isEmpty() -> {
+                        item {
+                            Box(
+                                modifier = Modifier.fillParentMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    stringResource(R.string.kpm_apm_empty),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {
+                        items(viewModel.moduleList) { module ->
+                            val scope = rememberCoroutineScope()
+                            KPModuleItem(
+                                module,
+                                onUninstall = {
+                                    scope.launch { onModuleUninstall(module) }
+                                },
+                                onControl = {
+                                    targetKPMToControl = module
+                                    ControlDialog.value = true
+                                },
+                            )
+
+                            // fix last item shadow incomplete in LazyColumn
+                            Spacer(Modifier.height(1.dp))
+                        }
+                    }
+                }
+            }
+            @OptIn(ExperimentalScrollBarApi::class)
+            VerticalScrollBar(
+                adapter = kpmScrollBarAdapter,
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
+        if (ControlDialog.value) {
+            KPMControlDialog(ControlDialog = ControlDialog)
+        }
+    }
+}
+
+@Composable
+private fun TopBar(navigator: TabNavigator) {
+    TopAppBar(
+        title = stringResource(R.string.kpm),
+        actions = {
+            IconButton(onClick = { navigator.navigate("online_kpm_module") }) {
+                Icon(
+                    imageVector = Icons.Filled.CloudDownload,
+                    contentDescription = "Online Modules"
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun KPModuleItem(
+    module: KPModel.KPMInfo,
+    onUninstall: (KPModel.KPMInfo) -> Unit,
+    onControl: (KPModel.KPMInfo) -> Unit,
+    alpha: Float = 1f,
+) {
+    val moduleVersion = stringResource(id = R.string.kpm_version)
+    val moduleAuthor = stringResource(id = R.string.kpm_author)
+    val moduleArgs = stringResource(id = R.string.kpm_args)
+    val decoration = TextDecoration.None
+
+    Card {
+        Box(
+            modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(all = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .alpha(alpha = alpha)
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = module.name,
+                            style = MiuixTheme.textStyles.title4.copy(fontWeight = FontWeight.Bold),
+                            maxLines = 2,
+                            textDecoration = decoration,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = "$moduleVersion: ${module.version}\n$moduleAuthor: ${module.author}",
+                            style = MiuixTheme.textStyles.body2,
+                            textDecoration = decoration,
+                        )
+
+                        Text(
+                            text = "$moduleArgs: ${module.args}",
+                            style = MiuixTheme.textStyles.body2,
+                            textDecoration = decoration,
+                        )
+                    }
+
+                }
+
+                Text(
+                    modifier = Modifier
+                        .alpha(alpha = alpha)
+                        .padding(horizontal = 16.dp),
+                    text = module.description,
+                    style = MiuixTheme.textStyles.body2,
+                    textDecoration = decoration,
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    thickness = 0.5.dp,
+                    color = MiuixTheme.colorScheme.outline.copy(alpha = 0.5f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    IconTextButton(
+                        iconRes = R.drawable.settings,
+                        onClick = { onControl(module) },
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    IconTextButton(
+                        iconRes = R.drawable.trash,
+                        onClick = { onUninstall(module) },
+                    )
+                }
+            }
+
+        }
+    }
+}

@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">VeyraSU</string>
+
+    <string name="home">Home</string>
+
+    <string name="success">Success</string>
+    <string name="failure">Failure</string>
+
+    <string name="patch_warnning">Installation comes with risks. Please ensure your data is backed up.</string>
+    <string name="patch">Patch</string>
+
+    <string name="kernel_patch">KernelPatch</string>
+    <string name="android_patch">AndroidPatch</string>
+
+    <string name="unofficial_warning_title">Unofficial Version</string>
+    <string name="unofficial_warning_summary">Do not submit issues to the official repository.</string>
+
+    <string name="reboot">Reboot</string>
+    <string name="settings">Settings</string>
+    <string name="reboot_recovery">Reboot to Recovery</string>
+    <string name="reboot_bootloader">Reboot to Bootloader</string>
+    <string name="reboot_download">Reboot to Download</string>
+    <string name="reboot_edl">Reboot to EDL</string>
+    <string name="reboot_fastbootd">Reboot to FastbootD</string>
+    <string name="about">About</string>
+    <string name="settings_app_language">Language</string>
+    <string name="system_default">System default</string>
+    <string name="settings_page_scale">App DPI</string>
+    <string name="settings_alt_icon">Alternative Icon</string>
+    <string name="settings_alt_icon_summary">Use alternative app icon</string>
+    <string name="settings_nav_layout_title">Navigation Layout</string>
+    <string name="settings_nav_layout_summary">Customize navigation bar buttons</string>
+    <string name="settings_show_apm">Show APM</string>
+    <string name="settings_show_kpm">Show KPM</string>
+    <string name="settings_show_superuser">Show SuperUser</string>
+    <string name="settings_global_namespace_mode">Global namespace mode</string>
+    <string name="settings_global_namespace_mode_summary">All root sessions use the global mount namespace</string>
+    <string name="settings_apm_sorting">Smart APM sorting</string>
+    <string name="settings_apm_sorting_summary">Make modules with higher priority display first.</string>
+    <string name="settings_clear_super_key_dialog">Do you really want to proceed?</string>
+
+    <string name="settings_check_update">Check for updates</string>
+    <string name="settings_check_update_summary">Automatically check for updates when opening the app</string>
+    <string name="settings_block_kernelpatch_update">Block KernelPatch Update</string>
+    <string name="settings_block_kernelpatch_update_summary">Do not show KernelPatch update notifications</string>
+    <string name="settings_block_androidpatch_update">Block System Patch Update</string>
+    <string name="settings_block_androidpatch_update_summary">Do not show system patch (APD) update notifications</string>
+    <string name="hide_about_card">Hide About Card</string>
+    <string name="hide_about_card_summary">Hide the about card on home screen</string>
+    <string name="update_available_title">Update Available</string>
+    <string name="update_available_message">A new version of VeyraSU is available. Update now?</string>
+    <string name="update_close">Later</string>
+    <string name="update_action">Update Now</string>
+    <string name="unofficial_version_title">Unofficial Version</string>
+    <string name="unofficial_version_message">You are using a third-party VeyraSU manager, which may cause financial loss. Please download the official app!</string>
+    <string name="go_to_github">Go to Github</string>
+
+    <string name="home_learn_apatch">Learn VeyraSU</string>
+    <string name="home_click_to_learn_apatch">Learn about the features of VeyraSU and how to use</string>
+
+    <string name="about_source_code"><![CDATA[<p>View source code at %1$s<p/>Join our %2$s channel<p/>Join our %3$s group]]></string>
+    <string name="send_log">Send logs</string>
+    <string name="save_log">Save logs</string>
+    <string name="log_saved">Logs saved</string>
+    <string name="safe_mode">Safe mode</string>
+    <string name="kernel_versions">Kernel</string>
+
+    <string name="super_key">SuperKey</string>
+    <string name="clear_super_key">Clear SuperKey</string>
+    <string name="patch_set_superkey">Set SuperKey</string>
+    <string name="home_patch_set_key_desc">Only credential for KernelPatch</string>
+    <string name="home_patch_next_step">Next step</string>
+
+    <string name="home_not_installed">Not installed</string>
+    <string name="home_install_unknown">Not installed or authenticated</string>
+    <string name="home_install_unknown_summary">Click to install</string>
+    <string name="home_click_to_install">Click to install</string>
+    <string name="home_working">Working</string>
+
+    <string name="home_installing">Installing</string>
+    <string name="home_need_update">New version available</string>
+    <string name="kpatch_version">Version:  %s</string>
+    <string name="apatch_version">Version:  %s (%s)</string>
+    <string name="apatch_version_update">Version: %1$s -&gt; %2$s</string>
+    <string name="kpatch_version_update">Version: %1$s -&gt; %2$s</string>
+    <string name="kpatch_shadow_path_title">kpatch</string>
+    <string name="home_auth_key_title">Enter SuperKey</string>
+    <string name="home_auth_key_desc">Start after certification</string>
+    <string name="home_kpatch_info_title">Info</string>
+
+    <string name="home_ap_cando_install">Install</string>
+    <string name="home_ap_cando_update">Update</string>
+    <string name="home_ap_cando_uninstall">Uninstall</string>
+    <string name="home_ap_cando_reboot">Reboot</string>
+
+    <string name="patch_title">Patch</string>
+
+    <string name="patch_config_title">Patches</string>
+    <string name="patch_mode_bootimg_patch">Mode: Patch</string>
+    <string name="patch_mode_patch_and_install">Mode: Patch and install</string>
+    <string name="patch_mode_install_to_next_slot">Mode: Install to inactive slot (After OTA)</string>
+    <string name="patch_mode_uninstall_patch">Mode: Uninstall KPatch</string>
+    <string name="patch_select_bootimg_btn">Select boot</string>
+    <string name="patch_embed_kpm_btn">Embed KPM</string>
+    <string name="patch_start_patch_btn">Start</string>
+    <string name="patch_start_unpatch_btn">UnPatch</string>
+    <string name="patch_item_error">!!ERROR!!</string>
+    <string name="patch_item_bootimg">bootimg</string>
+    <string name="patch_item_bootimg_slot">Slot:</string>
+    <string name="patch_item_bootimg_dev">Device:</string>
+    <string name="patch_item_kernel">Kernel</string>
+    <string name="patch_item_kpimg">kpimg</string>
+    <string name="patch_item_kpimg_version">Version:</string>
+    <string name="patch_item_kpimg_comile_time">Time:</string>
+    <string name="patch_item_kpimg_config">Config:</string>
+    <string name="patch_item_new_extra_kpm">Embed new</string>
+    <string name="patch_item_existed_extra_kpm">Existed</string>
+    <string name="patch_item_extra_name">Name:</string>
+    <string name="patch_item_extra_version">Version:</string>
+    <string name="patch_item_extra_author">Author:</string>
+    <string name="patch_item_extra_kpm_license">License:</string>
+    <string name="patch_item_extra_kpm_desciption">Description:</string>
+    <string name="patch_item_extra_args">Args:</string>
+    <string name="patch_item_extra_event">Event:</string>
+    <string name="patch_item_skey">SuperKey</string>
+    <string name="patch_item_set_skey_label">The SuperKey should be 8-63 characters long and include numbers and letters, but no special characters.</string>
+
+    <string name="home_kernel">Kernel version</string>
+    <string name="home_manager_version">Manager version</string>
+    <string name="home_fingerprint">Fingerprint</string>
+
+    <string name="home_selinux_status">SELinux status</string>
+    <string name="home_selinux_status_disabled">Disabled</string>
+    <string name="home_selinux_status_enforcing">Enforcing</string>
+    <string name="home_selinux_status_permissive">Permissive</string>
+    <string name="home_selinux_status_unknown">Unknown</string>
+    <string name="home_zygisk_implement">Zygisk Implement</string>
+
+    <string name="home_device_info">Device</string>
+    <string name="home_system_version">System version</string>
+    <string name="home_kpatch_version">KernelPatch version</string>
+    <string name="home_su_path">Executable su</string>
+    <string name="home_apatch_version">VeyraSU version</string>
+
+    <string name="kpm">KPModule</string>
+    <string name="kpm_kp_not_installed">KernelPatch not installed</string>
+    <string name="kpm_add_kpm">Add KPM</string>
+    <string name="kpm_load">Load</string>
+    <string name="kpm_install">Install</string>
+    <string name="kpm_embed">Embed</string>
+    <string name="kpm_load_toast_succ">Load succeed</string>
+    <string name="kpm_load_toast_failed">Load failed</string>
+    <string name="kpm_unload_confirm">Unload %s module?</string>
+    <string name="kpm_unload">Unload</string>
+    <string name="kpm_control">Control</string>
+    <string name="kpm_apm_empty">No module loaded</string>
+    <string name="kpm_version">Version</string>
+    <string name="kpm_license">License</string>
+    <string name="kpm_author">Author</string>
+    <string name="kpm_desc">Desc</string>
+    <string name="kpm_args">Args</string>
+
+    <string name="su_title">Superuser</string>
+    <string name="su_selinux_via_hook">Bypass via hook</string>
+    <string name="su_pkg_excluded_label">Exclude</string>
+    <string name="su_pkg_excluded_setting_title">Exclude modifications</string>
+    <string name="su_pkg_excluded_setting_summary">Enabling this option will allow VeyraSU to restore any files modified by the modules of this app.</string>
+    <string name="su_show_system_apps">Show system apps</string>
+    <string name="su_hide_system_apps">Hide system apps</string>
+    <string name="su_refresh">Refresh</string>
+
+    <string name="apm">APModule</string>
+    <string name="apm_not_installed">AndroidPatch not installed</string>
+    <string name="apm_failed_to_enable">Failed to enable module: %s</string>
+    <string name="apm_failed_to_disable">Failed to disable module: %s</string>
+    <string name="apm_empty">No module installed</string>
+    <string name="apm_remove">Remove</string>
+    <string name="apm_install">Install</string>
+    <string name="apm_uninstall_confirm">Uninstall the %s module?</string>
+    <string name="apm_uninstall_success">%s uninstalled</string>
+    <string name="apm_uninstall_failed">Failed to uninstall: %s</string>
+    <string name="apm_undo">Undo</string>
+    <string name="apm_undo_uninstall_success">%s restored successfully</string>
+    <string name="apm_undo_uninstall_failed">Failed to restore: %s</string>
+    <string name="apm_version">Version</string>
+    <string name="apm_author">Author</string>
+    <string name="module_parse_failed">Failed to parse module information, module may be corrupted: %s</string>
+    <string name="module_parse_reason">Reason: %s</string>
+    <string name="module_install_confirm_extra">Do you still want to install this module?</string>
+    <string name="module_update_prompt_with_name">The following modules will be updated: %1$s</string>
+    <string name="module_info_id">ID: %s</string>
+    <string name="module_info_name">Name: %s</string>
+    <string name="module_info_version">Version: %s</string>
+    <string name="module_info_version_code">VersionCode: %s</string>
+    <string name="module_info_author">Author: %s</string>
+    <string name="module_info_description">Description: %s</string>
+    <string name="module_install_prompt_with_name">The following modules will be installed: %1$s</string>
+    <string name="module_error_no_prop">module.prop not found in zip root</string>
+    <string name="module_error_open_zip">Failed to open zip file from URI</string>
+    <string name="module_error_invalid_zip">Invalid zip file format</string>
+    <string name="module_error_prop_too_large">module.prop is too large (&gt; 1MiB)</string>
+    <string name="module_error_missing_id">module.prop is missing required field \'id\'</string>
+    <string name="module_error_invalid_id">Module ID \'%s\' is invalid</string>
+    <string name="apm_desc">Desc</string>
+    <string name="apm_overlay_fs_not_available">Modules are unavailable as OverlayFS is disabled by the kernel!</string>
+    <string name="apm_magisk_conflict">Modules are unavailable due to a conflict with Magisk!</string>
+    <string name="apm_reboot_to_apply">Reboot to take effect</string>
+    <string name="apm_changelog">Changelog</string>
+    <string name="apm_changelog_failed">Failed to get changelog</string>
+    <string name="apm_update">Update</string>
+    <string name="apm_updated">Updated</string>
+    <string name="apm_downloading">Downloading module: %s</string>
+    <string name="apm_start_downloading">Start downloading: %s</string>
+    <string name="apm_new_version_available">New version %s is available, click to upgrade.</string>
+
+    <string name="hide_apatch_manager">Hide VeyraSU Manager</string>
+    <string name="hide_apatch_manager_summary">Install a proxy app with a random package ID and custom app label</string>
+    <string name="hide_apatch_dialog_new_manager_name">New manager name</string>
+    <string name="hide_apatch_dialog_summary">It will be used as the new app label shown in launcher</string>
+    <string name="hide_apatch_manager_failure">Failed to hide. Please report the bug!</string>
+
+    <string name="setting_reset_su_path">Reset su path</string>
+    <string name="setting_reset_su_new_path">New full path</string>
+
+    <string name="apm_webui_open">Open</string>
+    <string name="apm_action">Action</string>
+    <string name="settings_apm_stay_on_page">Stay on page</string>
+    <string name="settings_apm_stay_on_page_summary">Do not automatically return after the system module performs the operation</string>
+    <string name="enable_web_debugging">Enable WebView debugging</string>
+    <string name="enable_web_debugging_summary">Can be used to debug WebUI. Please enable only when needed.</string>
+    <string name="settings_apm_install_confirm">Confirm before install</string>
+    <string name="settings_apm_install_confirm_summary">Show a confirmation dialog before installing modules</string>
+    <string name="apm_install_confirm_title">Install Module</string>
+    <string name="apm_install_confirm_content">Are you sure you want to install %s?</string>
+
+    <string name="settings_donot_store_superkey">Don\'t store SuperKey in local</string>
+    <string name="settings_donot_store_superkey_summary">Authenticate the SuperKey every time the manager starts</string>
+
+    <string name="home_new_apatch_found">New version %s is available, click to upgrade.</string>
+
+    <string name="mode_select_page_title">Install</string>
+    <string name="mode_select_page_patch_and_install">Patch and install</string>
+    <string name="mode_select_page_select_file">Select a boot image to patch</string>
+    <string name="mode_select_page_install_inactive_slot">Install to inactive slot (After OTA)</string>
+    <string name="mode_select_page_install_inactive_slot_warning">Your device will be **FORCED** to boot to the current inactive slot after a reboot!\nOnly use this option after OTA is done.\nContinue?</string>
+    <string name="mode_select_page_select_kpimg">Use local patch file (KPimg)</string>
+    <string name="patch_custom_kpimg_label">Custom KPimg</string>
+    <string name="patch_custom_kpimg_file">File: %s</string>
+    <string name="patch_select_kpimg_btn">Select KPimg</string>
+
+    <string name="home_dialog_auth_fail_title">Authentication failed</string>
+    <string name="home_dialog_auth_fail_content">Unable to authenticate the SuperKey, therefore VeyraSU cannot work properly.\nHere are some possible reasons for authentication failure:\n1. You didn\'t patch the boot.img with KernelPatch.\n2. The patched boot.img wasn\'t flashed.\n3. The SuperKey is wrong or contains special characters.\n4. Your device doesn\'t support VeyraSU and KernelPatch.\n\nPlease check and try again. If there are still issues, you can always ask questions on the official repository\'s issues page.</string>
+
+    <string name="home_more_menu_feedback_or_suggestion">Feedback or suggestion</string>
+    <string name="home_more_menu_about">About</string>
+
+    <string name="home_dialog_uninstall_title">Uninstall</string>
+
+    <string name="home_dialog_uninstall_ap_only">Remove AndroidPatch</string>
+    <string name="home_dialog_uninstall_ap_only_desc">Remove AndroidPatch only and keep the manager.</string>
+    <string name="home_dialog_uninstall_all">Uninstall fully</string>
+    <string name="home_dialog_uninstall_all_desc">Remove AndroidPatch and start the full uninstall flow.</string>
+    <string name="home_dialog_restore_image">Restore Images</string>
+
+    <string name="kpm_control_dialog_title">Control KPModule</string>
+    <string name="kpm_control_dialog_content">Input control parameters:</string>
+    <string name="kpm_control_paramters">Parameters</string>
+    <string name="kpm_control_outMsg">Message</string>
+    <string name="kpm_control_ok">Operation succeeded!</string>
+    <string name="kpm_control_failed">Operation failed!</string>
+
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_summary">Choose color mode for the app</string>
+    <string name="settings_theme_mode_system">Follow system</string>
+    <string name="settings_theme_mode_light">Light</string>
+    <string name="settings_theme_mode_dark">Dark</string>
+    <string name="settings_theme_mode_monet_system">Monet (Follow system)</string>
+    <string name="settings_theme_mode_monet_light">Monet (Light)</string>
+    <string name="settings_theme_mode_monet_dark">Monet (Dark)</string>
+
+    <string name="settings_home_layout_style">Home layout style</string>
+    <string name="settings_home_layout_default" translatable="false">GridUI</string>
+    <string name="settings_home_layout_list" translatable="false">ListUI</string>
+    <string name="settings_home_layout_classic" translatable="false">ClassicUI</string>
+
+    <string name="settings_night_mode_follow_sys">Follow system\'s dark theme</string>
+    <string name="settings_night_mode_follow_sys_summary">Automatically switch to dark theme based on system settings</string>
+
+    <string name="settings_night_theme_enabled">Enable dark theme</string>
+
+    <string name="settings_use_system_color_theme">System color theme</string>
+    <string name="settings_use_system_color_theme_summary">Use a color theme generated by the system based on the current wallpaper</string>
+
+    <string name="settings_custom_color_theme">Color theme</string>
+    <string name="amber_theme">Amber</string>
+    <string name="blue_grey_theme">Blue grey</string>
+    <string name="blue_theme">Blue</string>
+    <string name="brown_theme">Brown</string>
+    <string name="cyan_theme">Cyan</string>
+    <string name="deep_orange_theme">Deep orange</string>
+    <string name="deep_purple_theme">Deep purple</string>
+    <string name="green_theme">Green</string>
+    <string name="indigo_theme">Indigo</string>
+    <string name="light_blue_theme">Light blue</string>
+    <string name="light_green_theme">Light green</string>
+    <string name="lime_theme">Lime</string>
+    <string name="orange_theme">Orange</string>
+    <string name="pink_theme">Pink</string>
+    <string name="purple_theme">Purple</string>
+    <string name="red_theme">Red</string>
+    <string name="sakura_theme">Sakura</string>
+    <string name="teal_theme">Teal</string>
+    <string name="yellow_theme">Yellow</string>
+    <string name="about_app_version">Version %1$s</string>
+    <string name="about_app_desc">Kernel root solution with only a stripped kernel image, providing the ability of mounting system module and hooking kernel function.</string>
+    <string name="about_github" translatable="false">GitHub</string>
+    <string name="about_weblate" translatable="false">Weblate</string>
+    <string name="about_telegram_channel">Telegram channel</string>
+    <string name="about_telegram_group">Telegram group</string>
+    <string name="about_powered_by">Powered by %1$s</string>
+    <string name="crash_handle_title">App crashed…</string>
+    <string name="crash_handle_copy">Copy crash log</string>
+    <string name="crash_handle_copied">Crash log copied to clipboard.</string>
+    <string name="settings_magic_mount">Folk Mount API</string>
+    <string name="settings_magic_mount_summary">Enable the built-in module mounting system</string>
+    <string name="settings_hide_service">VeyraSU Hide</string>
+    <string name="settings_hide_service_summary">Hide Bootloader unlock status to some extent</string>
+    <!-- Umount Service -->
+    <string name="settings_umount_service">Umount Service</string>
+    <string name="settings_umount_service_summary">Configure mount points to auto-unmount at boot</string>
+    <string name="umount_config_title">Umount Configuration</string>
+    <string name="umount_config_enabled">Enable Umount</string>
+    <string name="umount_config_enabled_summary">Auto-unmount specified mount points at boot</string>
+    <string name="umount_config_paths_label">Mount Point Paths (one per line)</string>
+    <string name="umount_config_paths_placeholder">/system/vendor/app\n/system/vendor/priv-app</string>
+    <string name="umount_config_paths_helper">Enter one mount point path per line to unmount</string>
+    <string name="umount_config_save">Save</string>
+    <string name="umount_config_save_confirm">Confirm save configuration?</string>
+    <string name="umount_config_save_success">Configuration saved successfully</string>
+    <string name="umount_config_save_failed">Failed to save configuration</string>
+    <string name="online_apm_module_title">Online APM Modules</string>
+    <string name="online_kpm_module_title">Online KPM Modules</string>
+    <string name="online_module_search_hint">Search modules...</string>
+    <string name="online_module_download">Download</string>
+    <string name="online_module_download_start">Start downloading: %s</string>
+    <string name="online_module_download_complete">Download complete: %s</string>
+    <string name="online_module_download_notification">Downloading %s. Please check notification panel for progress and Download folder for completed file.</string>
+    <string name="online_module_empty">No modules available</string>
+
+    <!-- KPM Auto Load -->
+    <string name="kpm_autoload_title">KPM Auto-Load</string>
+    <string name="kpm_autoload_fab_title">Auto Load Config</string>
+    <string name="kpm_autoload_enabled">Enable auto-load</string>
+    <string name="kpm_autoload_enabled_summary">Automatically load KPM modules on application startup</string>
+    <string name="kpm_autoload_json_config">JSON Configuration</string>
+    <string name="kpm_autoload_json_label">Configuration JSON</string>
+    <string name="kpm_autoload_json_placeholder">{\n  "enabled": true,\n  "kpmPaths": [\n    "/path/to/module1.kpm",\n    "/path/to/module2.kpm"\n  ]\n}</string>
+    <string name="kpm_autoload_json_error">Invalid JSON format</string>
+    <string name="kpm_autoload_json_helper">Enter valid JSON with array of KPM file paths</string>
+    <string name="kpm_autoload_save">Save Configuration</string>
+    <string name="kpm_autoload_save_confirm">Save auto-load configuration?</string>
+    <string name="kpm_autoload_save_success">Configuration saved successfully</string>
+    <string name="kpm_autoload_save_failed">Failed to save configuration</string>
+    <string name="kpm_autoload_visual_mode">Visual Mode</string>
+    <string name="kpm_autoload_json_mode">JSON Mode</string>
+    <string name="kpm_autoload_add_kpm">Add KPM</string>
+    <string name="kpm_autoload_remove_kpm">Remove</string>
+    <string name="kpm_autoload_kpm_list_title">KPM Modules</string>
+    <string name="kpm_autoload_no_kpm_added">No KPM modules added</string>
+    <string name="kpm_autoload_kpm_path">KPM Path</string>
+    <string name="kpm_autoload_file_not_found">File not found</string>
+    <string name="kpm_autoload_select_kpm_file">Select KPM File</string>
+    <string name="apm_mount_warning_title">Important Notice</string>
+    <string name="apm_mount_warning_message">Modules are not mounted by default. Please use built-in mounting system or metamodule.</string>
+    <string name="apm_mount_warning_button">I Understand</string>
+    <string name="kpm_autoload_do_not_show_again">Don\'t show again</string>
+    <string name="kpm_autoload_first_time_confirm">Got it</string>
+
+    <!-- Visual Effects -->
+    <string name="settings_enable_blur">Enable blur</string>
+    <string name="settings_enable_blur_summary">Blur effect for top bar and navigation bar</string>
+    <string name="settings_floating_bottom_bar">Floating bottom bar</string>
+    <string name="settings_floating_bottom_bar_summary">Use a floating capsule-style navigation bar</string>
+    <string name="settings_floating_bottom_bar_auto_hide">Auto hide floating bar</string>
+    <string name="settings_floating_bottom_bar_auto_hide_summary">Automatically hide the floating navigation bar after 3 seconds of inactivity</string>
+    <string name="settings_floating_bottom_bar_scroll_hide">Scroll to hide floating bar</string>
+    <string name="settings_floating_bottom_bar_scroll_hide_summary">Hide the floating navigation bar when scrolling down</string>
+    <string name="settings_enable_liquid_glass">Liquid glass</string>
+    <string name="settings_enable_liquid_glass_summary">Glass effects for floating bottom bar</string>
+    <string name="settings_section_kernel">Kernel Patch</string>
+    <string name="settings_section_module">Functions</string>
+    <string name="settings_section_customization">Customization</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_about">Logs</string>
+
+    <!-- Seed Color -->
+    <string name="settings_key_color">Seed color</string>
+    <string name="settings_key_color_summary">Choose seed color for Monet theme</string>
+    <string name="settings_key_color_default">Default (Wallpaper)</string>
+    <string name="color_red">Red</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_purple">Purple</string>
+    <string name="color_deep_purple">Deep Purple</string>
+    <string name="color_indigo">Indigo</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_teal">Teal</string>
+    <string name="color_green">Green</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_amber">Amber</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_brown">Brown</string>
+    <string name="color_blue_grey">Blue Grey</string>
+    <string name="color_sakura">Sakura</string>
+
+    <!-- Settings Summaries -->
+    <string name="settings_home_layout_style_summary">Switch between grid and list layout</string>
+    <string name="settings_page_scale_summary">Adjust app display density</string>
+    <string name="settings_app_language_summary">Change app display language</string>
+    <string name="clear_super_key_summary">Remove stored SuperKey credential</string>
+    <string name="setting_reset_su_path_summary">Reset su executable path</string>
+    <string name="send_log_summary">Export or share bug reports</string>
+
+    <string name="settings_predictive_back_gesture">Predictive back gesture</string>
+    <string name="settings_predictive_back_gesture_summary">Enable Android 14+ predictive back gesture animation</string>
+
+    <!-- Module Shortcuts -->
+    <string name="apm_shortcut_created">Shortcut created</string>
+    <string name="apm_shortcut_updated">Shortcut updated</string>
+    <string name="apm_shortcut_not_supported">Launcher does not support pinning shortcuts</string>
+    <string name="apm_shortcut_permission_tip_xiaomi">Long-press the app icon and grant shortcut permission</string>
+    <string name="apm_shortcut_permission_tip_oppo">Long-press the app icon and grant shortcut permission</string>
+    <string name="apm_shortcut_permission_tip_default">Long-press the app icon to find the shortcut</string>
+    <string name="apm_shortcut_create_title">Create Shortcut</string>
+    <string name="apm_shortcut_action">Action</string>
+    <string name="apm_shortcut_webui">WebUI</string>
+    <string name="apm_shortcut_name_label">Name</string>
+    <string name="apm_shortcut_create">Create</string>
+</resources>

@@ -1,0 +1,156 @@
+package me.bmax.apatch.ui.screen
+
+import android.os.Environment
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.dropUnlessResumed
+import me.bmax.apatch.ui.screen.TabNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.bmax.apatch.APApplication
+import me.bmax.apatch.R
+import me.bmax.apatch.ui.component.KeyEventBlocker
+import me.bmax.apatch.util.runAPModuleAction
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+@Composable
+fun ExecuteAPMActionScreen(navigator: TabNavigator, moduleId: String) {
+    var text by rememberSaveable { mutableStateOf("") }
+    var tempText: String
+    val logContent = rememberSaveable { StringBuilder() }
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    var actionResult: Boolean
+
+    LaunchedEffect(Unit) {
+        if (text.isNotEmpty()) {
+            return@LaunchedEffect
+        }
+        withContext(Dispatchers.IO) {
+            runAPModuleAction(
+                moduleId,
+                onStdout = {
+                    tempText = "$it\n"
+                    if (tempText.startsWith("[H[J")) { // clear command
+                        text = tempText.substring(6)
+                    } else {
+                        text += tempText
+                    }
+                    logContent.append(it).append("\n")
+                },
+                onStderr = {
+                    logContent.append(it).append("\n")
+                }
+            ).let {
+                actionResult = it
+            }
+        }
+        if (actionResult) {
+            if (!APApplication.sharedPreferences.getBoolean("apm_action_stay_on_page", true)) {
+                navigator.popBackStack()
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopBar(
+                onBack = dropUnlessResumed {
+                    navigator.popBackStack()
+                },
+                onSave = {
+                    scope.launch {
+                        val format = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+                        val date = format.format(Date())
+                        val file = File(
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                            "APatch_apm_action_log_${date}.log"
+                        )
+                        file.writeText(logContent.toString())
+                    }
+                }
+            )
+        },
+    ) { innerPadding ->
+        KeyEventBlocker {
+            it.key == Key.VolumeDown || it.key == Key.VolumeUp
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize(1f)
+                .padding(innerPadding)
+                .verticalScroll(scrollState),
+        ) {
+            LaunchedEffect(text) {
+                scrollState.animateScrollTo(scrollState.maxValue)
+            }
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = text,
+                fontSize = MiuixTheme.textStyles.body2.fontSize,
+                fontFamily = FontFamily.Monospace,
+                lineHeight = MiuixTheme.textStyles.body2.lineHeight,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TopBar(onBack: () -> Unit = {}, onSave: () -> Unit = {}) {
+    SmallTopAppBar(
+        title = stringResource(R.string.apm_action),
+        navigationIcon = {
+            IconButton(
+                onClick = onBack
+            ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+        },
+        actions = {
+            IconButton(
+                modifier = Modifier
+                    .size(32.dp)
+                    .border(1.dp, MiuixTheme.colorScheme.primary, CircleShape)
+                    .background(MiuixTheme.colorScheme.surface, CircleShape),
+                onClick = onSave
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Save,
+                    contentDescription = "Save log",
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        }
+    )
+}
