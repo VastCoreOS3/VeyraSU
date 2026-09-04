@@ -549,8 +549,8 @@ private fun TopBar(
         stringResource(R.string.reboot_edl),
         stringResource(R.string.reboot_fastbootd),
     )
+    // ============ 修改这里：移除反馈，只保留关于 ============
     val moreItems = listOf(
-        stringResource(R.string.home_more_menu_feedback_or_suggestion),
         stringResource(R.string.home_more_menu_about)
     )
     TopAppBar(
@@ -620,8 +620,8 @@ private fun TopBar(
                                     optionSize = moreItems.size,
                                     onSelectedIndexChange = {
                                         when (index) {
-                                            0 -> uriHandler.openUri("https://github.com/LyraVoid/FolkLite/issues/new/choose")
-                                            1 -> navigator.navigate("about")
+                                            // 只保留跳转到关于页面，删掉反馈分支
+                                            0 -> navigator.navigate("about")
                                         }
                                         showDropdownMoreOptions.value = false
                                     },
