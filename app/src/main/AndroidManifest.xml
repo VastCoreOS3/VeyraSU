@@ -32,9 +32,14 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
+            android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Splash" />
-
+            android:theme="@style/Theme.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+        </activity>
         <activity-alias
             android:name=".ui.MainActivityFileHandler"
             android:enabled="true"
@@ -55,32 +60,6 @@
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/zip" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".ui.MainActivityDefault"
-            android:enabled="true"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:targetActivity=".ui.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".ui.MainActivityAlias"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_alt"
-            android:label="@string/app_name"
-            android:targetActivity=".ui.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
 
