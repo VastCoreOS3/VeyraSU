@@ -112,6 +112,14 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.utils.overScrollVertical
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import me.bmax.apatch.BuildConfig
 
 private val managerVersion = getManagerVersion()
 
@@ -539,7 +547,8 @@ private fun TopBar(
     scrollBehavior: ScrollBehavior
 ) {
     val uriHandler = LocalUriHandler.current
-    val showDropdownMoreOptions = remember { mutableStateOf(false) }
+    // 控制【关于弹窗】显示状态
+    val showAboutDialog = remember { mutableStateOf(false) }
     val howDropdownReboot = remember { mutableStateOf(false) }
     val rebootItems = listOf(
         stringResource(R.string.reboot),
@@ -549,10 +558,7 @@ private fun TopBar(
         stringResource(R.string.reboot_edl),
         stringResource(R.string.reboot_fastbootd),
     )
-    // ============ 修改这里：移除反馈，只保留关于 ============
-    val moreItems = listOf(
-        stringResource(R.string.home_more_menu_about)
-    )
+
     TopAppBar(
         title = stringResource(R.string.app_name),
         actions = {
@@ -601,38 +607,83 @@ private fun TopBar(
                 }
             }
             Box {
-                IconButton(onClick = { showDropdownMoreOptions.value = true }) {
+                IconButton(onClick = {
+                    // 点击更多，直接唤起关于弹窗，不再弹出下拉菜单
+                    showAboutDialog.value = true
+                }) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
                         contentDescription = stringResource(id = R.string.settings)
                     )
-                    SuperListPopup(
-                        show = showDropdownMoreOptions.value,
-                        popupPositionProvider = ListPopupDefaults.ContextMenuPositionProvider,
-                        alignment = PopupPositionProvider.Align.TopEnd,
-                        onDismissRequest = { showDropdownMoreOptions.value = false }
+                }
+
+                // ========== 内嵌关于弹窗（把AboutScreen内容搬进来） ==========
+                SuperDialog(
+                    show = showAboutDialog.value,
+                    title = stringResource(R.string.about),
+                    onDismissRequest = { showAboutDialog.value = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        ListPopupColumn {
-                            moreItems.forEachIndexed { index, string ->
-                                DropdownImpl(
-                                    text = string,
-                                    isSelected = false,
-                                    optionSize = moreItems.size,
-                                    onSelectedIndexChange = {
-                                        when (index) {
-                                            // 只保留跳转到关于页面，删掉反馈分支
-                                            0 -> navigator.navigate("about")
-                                        }
-                                        showDropdownMoreOptions.value = false
-                                    },
-                                    index = index
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            modifier = Modifier.size(75.dp),
+                            color = colorResource(id = R.color.ic_launcher_background),
+                            shape = CircleShape
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                contentDescription = stringResource(R.string.app_name),
+                                modifier = Modifier.scale(1.15f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(id = R.string.app_name),
+                            style = MiuixTheme.textStyles.title4
+                        )
+                        Text(
+                            text = stringResource(
+                                id = R.string.about_app_version,
+                                if (BuildConfig.VERSION_NAME.contains(BuildConfig.VERSION_CODE.toString())) "${BuildConfig.VERSION_CODE}" else "${BuildConfig.VERSION_CODE} (${BuildConfig.VERSION_NAME})"
+                            ),
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.onSurfaceVariantActions,
+                            modifier = Modifier.padding(top = 5.dp)
+                        )
+                        Text(
+                            text = stringResource(
+                                id = R.string.about_powered_by,
+                                "KernelPatch (${Version.buildKPVString()})"
+                            ),
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.onSurfaceVariantActions,
+                            modifier = Modifier.padding(top = 5.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Card {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.about_app_desc),
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onSurfaceVariantActions,
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
-        }, scrollBehavior = scrollBehavior
+        },
+        scrollBehavior = scrollBehavior
     )
 }
 
