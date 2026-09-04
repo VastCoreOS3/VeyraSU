@@ -85,8 +85,6 @@ import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
 import me.bmax.apatch.util.APatchKeyHelper
 import me.bmax.apatch.util.PageScaleUtils
-import me.bmax.apatch.util.LauncherIconUtils
-import me.bmax.apatch.util.getBugreportFile
 import me.bmax.apatch.util.isGlobalNamespaceEnabled
 import me.bmax.apatch.util.isHideServiceEnabled
 import me.bmax.apatch.util.isMagicMountEnabled
@@ -567,26 +565,6 @@ fun SettingScreen(navigator: TabNavigator) {
                         )
                     }
 
-                    var useAltIcon by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("use_alt_icon", false))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_alt_icon),
-                        summary = stringResource(id = R.string.settings_alt_icon_summary),
-                        checked = useAltIcon,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.SwapHoriz,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            prefs.edit { putBoolean("use_alt_icon", it) }
-                            LauncherIconUtils.updateLauncherState(context)
-                            useAltIcon = it
-                        }
-                    )
                 }
             }
 
