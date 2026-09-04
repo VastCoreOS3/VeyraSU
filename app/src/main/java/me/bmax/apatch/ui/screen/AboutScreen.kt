@@ -58,7 +58,7 @@ fun AboutScreen(navigator: TabNavigator) {
             Spacer(modifier = Modifier.height(20.dp))
             Surface(
                 modifier = Modifier.size(95.dp),
-                color = colorResource(id = R.color.ic_launcher_folkpatch_background),
+                color = colorResource(id = R.color.ic_launcher_background),
                 shape = CircleShape
             ) {
                 Image(
