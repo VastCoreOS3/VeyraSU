@@ -120,6 +120,15 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import me.bmax.apatch.BuildConfig
+import top.yukonga.miuix.kmp.basic.Surface
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import me.bmax.apatch.BuildConfig
 
 private val managerVersion = getManagerVersion()
 
@@ -547,7 +556,7 @@ private fun TopBar(
     scrollBehavior: ScrollBehavior
 ) {
     val uriHandler = LocalUriHandler.current
-    // 控制【关于弹窗】显示状态
+    val showDropdownMoreOptions = remember { mutableStateOf(false) }
     val showAboutDialog = remember { mutableStateOf(false) }
     val howDropdownReboot = remember { mutableStateOf(false) }
     val rebootItems = listOf(
@@ -557,6 +566,9 @@ private fun TopBar(
         stringResource(R.string.reboot_download),
         stringResource(R.string.reboot_edl),
         stringResource(R.string.reboot_fastbootd),
+    )
+    val moreItems = listOf(
+        stringResource(R.string.home_more_menu_about)
     )
 
     TopAppBar(
@@ -607,17 +619,39 @@ private fun TopBar(
                 }
             }
             Box {
-                IconButton(onClick = {
-                    // 点击更多，直接唤起关于弹窗，不再弹出下拉菜单
-                    showAboutDialog.value = true
-                }) {
+                IconButton(onClick = { showDropdownMoreOptions.value = true }) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
                         contentDescription = stringResource(id = R.string.settings)
                     )
+                    SuperListPopup(
+                        show = showDropdownMoreOptions.value,
+                        popupPositionProvider = ListPopupDefaults.ContextMenuPositionProvider,
+                        alignment = PopupPositionProvider.Align.TopEnd,
+                        onDismissRequest = { showDropdownMoreOptions.value = false }
+                    ) {
+                        ListPopupColumn {
+                            moreItems.forEachIndexed { index, string ->
+                                DropdownImpl(
+                                    text = string,
+                                    isSelected = false,
+                                    optionSize = moreItems.size,
+                                    onSelectedIndexChange = {
+                                        when (index) {
+                                            0 -> {
+                                                showDropdownMoreOptions.value = false
+                                                showAboutDialog.value = true
+                                            }
+                                        }
+                                    },
+                                    index = index
+                                )
+                            }
+                        }
+                    }
                 }
 
-                // ========== 内嵌关于弹窗（把AboutScreen内容搬进来） ==========
+                // ========== ⚠️所有UI全部放在SuperDialog尾随大括号内部 ==========
                 SuperDialog(
                     show = showAboutDialog.value,
                     title = stringResource(R.string.about),
@@ -682,8 +716,7 @@ private fun TopBar(
                     }
                 }
             }
-        },
-        scrollBehavior = scrollBehavior
+        }, scrollBehavior = scrollBehavior
     )
 }
 
