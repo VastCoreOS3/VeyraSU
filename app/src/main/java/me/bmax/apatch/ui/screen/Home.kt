@@ -188,21 +188,6 @@ fun MainHomeScreen(navigator: TabNavigator) {
                         )
                     }
                     InfoCard(kpState, apState)
-                    var hideAboutCard by remember {
-                        mutableStateOf(APApplication.sharedPreferences.getBoolean("hide_about_card", true))
-                    }
-                    DisposableEffect(Unit) {
-                        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-                            if (key == "hide_about_card") {
-                                hideAboutCard = prefs.getBoolean("hide_about_card", true)
-                            }
-                        }
-                        APApplication.sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
-                        onDispose { APApplication.sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
-                    }
-                    if (!hideAboutCard) {
-                        LearnMoreCard()
-                    }
                 }
             }
         }
@@ -260,21 +245,6 @@ fun ClassicHomeScreen(navigator: TabNavigator) {
                         AStatusCard(apState = apState, kpState = kpState, navigator = navigator)
                     }
                     InfoCard(kpState, apState)
-                    var hideAboutCard by remember {
-                        mutableStateOf(APApplication.sharedPreferences.getBoolean("hide_about_card", true))
-                    }
-                    DisposableEffect(Unit) {
-                        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-                            if (key == "hide_about_card") {
-                                hideAboutCard = prefs.getBoolean("hide_about_card", true)
-                            }
-                        }
-                        APApplication.sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
-                        onDispose { APApplication.sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
-                    }
-                    if (!hideAboutCard) {
-                        LearnMoreCard()
-                    }
                 }
             }
         }
@@ -1156,33 +1126,6 @@ fun UpdateCard() {
             } else {
                 updateDialog.showConfirm(
                     title = title, content = changelog, markdown = true, confirm = updateText
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LearnMoreCard() {
-    val uriHandler = LocalUriHandler.current
-    Card {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    uriHandler.openUri("https://fp.mysqil.com/")
-                }
-                .padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column {
-                Text(
-                    text = stringResource(R.string.home_learn_apatch),
-                    style = MiuixTheme.textStyles.body1,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.home_click_to_learn_apatch),
-                    style = MiuixTheme.textStyles.body2
                 )
             }
         }

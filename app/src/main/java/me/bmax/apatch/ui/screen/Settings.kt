@@ -824,29 +824,9 @@ fun SettingScreen(navigator: TabNavigator) {
                         }
                     )
 
-                    var hideAboutCard by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("hide_about_card", true))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.hide_about_card),
-                        summary = stringResource(id = R.string.hide_about_card_summary),
-                        checked = hideAboutCard,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.HideImage,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = { isChecked ->
-                            hideAboutCard = isChecked
-                            prefs.edit { putBoolean("hide_about_card", isChecked) }
-                        }
-                    )
-
-                    var checkUpdate by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("check_update", true))
-                    }
+                     var checkUpdate by rememberSaveable {
+                         mutableStateOf(prefs.getBoolean("check_update", true))
+                     }
                     SuperSwitch(
                         title = stringResource(id = R.string.settings_check_update),
                         summary = stringResource(id = R.string.settings_check_update_summary),
