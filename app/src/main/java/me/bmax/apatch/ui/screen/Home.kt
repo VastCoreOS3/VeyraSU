@@ -112,6 +112,11 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.utils.overScrollVertical
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeSource
+import me.bmax.apatch.util.ui.defaultHazeEffect
 
 private val managerVersion = getManagerVersion()
 
@@ -524,7 +529,11 @@ private fun TopBar(
         stringResource(R.string.home_more_menu_about)
     )
     TopAppBar(
-        title = stringResource(R.string.app_name),
+         title = stringResource(R.string.app_name),
+         color = Color.Transparent,
+         modifier = Modifier.then(
+             if (hazeState != null) Modifier.defaultHazeEffect(hazeState, hazeStyle) else Modifier
+         ),
         actions = {
             IconButton(onClick = onInstallClick) {
                 Icon(
