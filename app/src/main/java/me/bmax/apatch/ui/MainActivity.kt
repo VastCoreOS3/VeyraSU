@@ -439,43 +439,31 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     ) {
-                    CompositionLocalProvider(
-                        LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            MainScreen(
-                                modifier = Modifier
-                                    .then(
-                                        if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
-                                        else Modifier
-                                    )
-                                    .padding(bottom = if (showBottomBar) {
-                                        if (enableFloatingBottomBar) 0.dp else 65.dp
-                                    } else 0.dp)
-                                    .then(
-                                        if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
-                                        else Modifier
-                                    )
-                                    .then(
-                                        if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
-                                            Modifier.layerBackdrop(backdrop)
-                                        else Modifier
-                                    ),
-                                onExternalNavConsumed = { navEventConsumed = true },
-                            )
-                    
-                            // 顶部状态栏毛玻璃，使用全限定类名，消除WindowInsets冲突
-                            if (enableBlur && hazeState != null) {
-                                val topInset = androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(topInset)
-                                        .defaultHazeEffect(hazeState, hazeStyle)
+                        CompositionLocalProvider(
+                            LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
+                        ) {
+                        MainScreen(
+                            modifier = Modifier
+                                .then(
+                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
+                                    else Modifier
                                 )
-                            }
-                        }
-                    } // end LocalExternalNavEvent CompositionLocalProvider
+                                .padding(bottom = if (showBottomBar) {
+                                    if (enableFloatingBottomBar) 0.dp else 65.dp
+                                } else 0.dp)
+                                .then(
+                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
+                                    else Modifier
+                                )
+                                .then(
+                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                        Modifier.layerBackdrop(backdrop)
+                                    else Modifier
+                                ),
+                            onExternalNavConsumed = { navEventConsumed = true },
+                        )
+                        } // end LocalExternalNavEvent CompositionLocalProvider
+                    } // end Scaffold content
 
                 // Update dialog
                 if (showUpdateDialog) {
