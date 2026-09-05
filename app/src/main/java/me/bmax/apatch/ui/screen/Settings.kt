@@ -1,5 +1,4 @@
 package me.bmax.apatch.ui.screen
-
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -26,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountTree
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.AutoFixHigh
-import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Dock
@@ -40,7 +38,6 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.SystemUpdate
@@ -48,7 +45,6 @@ import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.VpnKey
 import androidx.compose.material.icons.rounded.SwapVert
-import androidx.compose.material.icons.rounded.Vaccines
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -68,7 +64,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import me.bmax.apatch.ui.screen.TabNavigator
@@ -85,18 +80,14 @@ import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
 import me.bmax.apatch.util.APatchKeyHelper
 import me.bmax.apatch.util.PageScaleUtils
-import me.bmax.apatch.util.getBugreportFile
 import me.bmax.apatch.util.isGlobalNamespaceEnabled
 import me.bmax.apatch.util.isHideServiceEnabled
 import me.bmax.apatch.util.isMagicMountEnabled
-import me.bmax.apatch.util.outputStream
 import me.bmax.apatch.util.rootShellForResult
 import me.bmax.apatch.util.setGlobalNamespaceEnabled
 import me.bmax.apatch.util.setHideServiceEnabled
 import me.bmax.apatch.util.setMagicMountEnabled
 import me.bmax.apatch.util.VisualConfig
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
@@ -119,7 +110,6 @@ import top.yukonga.miuix.kmp.utils.overScrollVertical
 @Composable
 fun SettingScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
-
     val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     val kPatchReady = state != APApplication.State.UNKNOWN_STATE
     val aPatchReady =
@@ -141,35 +131,12 @@ fun SettingScreen(navigator: TabNavigator) {
         isMagicMountEnabled = isMagicMountEnabled()
         isHideServiceEnabled = isHideServiceEnabled()
     }
-
     val showResetSuPathDialog = remember { mutableStateOf(false) }
-    val showLogBottomSheet = remember { mutableStateOf(false) }
     val showClearKeyDialog = rememberSaveable { mutableStateOf(false) }
     val showScaleDialog = remember { mutableStateOf(false) }
-
     val loadingDialog = rememberLoadingDialog()
-
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val logSavedMessage = stringResource(R.string.log_saved)
-    val exportBugreportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/gzip")
-    ) { uri: Uri? ->
-        if (uri != null) {
-            scope.launch(Dispatchers.IO) {
-                loadingDialog.show()
-                uri.outputStream().use { output ->
-                    getBugreportFile(context).inputStream().use {
-                        it.copyTo(output)
-                    }
-                }
-                loadingDialog.hide()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, logSavedMessage, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -180,19 +147,11 @@ fun SettingScreen(navigator: TabNavigator) {
         },
         popupHost = {
             ResetSUPathDialog(showResetSuPathDialog)
-            LogBottomSheet(
-                showLogBottomSheet,
-                scope,
-                exportBugreportLauncher,
-                loadingDialog,
-                context
-            )
         }
     )
     { paddingValues ->
         val prefs = APApplication.sharedPreferences
         var sliderValue by rememberSaveable { mutableFloatStateOf(PageScaleUtils.currentScale) }
-
         val languages = stringArrayResource(id = R.array.languages)
         val languagesValues = stringArrayResource(id = R.array.languages_values)
         val currentLocales = AppCompatDelegate.getApplicationLocales()
@@ -201,7 +160,6 @@ fun SettingScreen(navigator: TabNavigator) {
         val langInitialIndex = if (currentLanguageTag == null) 0
         else languagesValues.indexOf(currentLanguageTag).let { if (it >= 0) it else 0 }
         var langSelectedIndex by remember { mutableStateOf(langInitialIndex) }
-
         var themeMode by rememberSaveable {
             mutableIntStateOf(prefs.getInt("color_mode", 0))
         }
@@ -213,11 +171,9 @@ fun SettingScreen(navigator: TabNavigator) {
             stringResource(id = R.string.settings_theme_mode_light),
             stringResource(id = R.string.settings_theme_mode_dark),
         )
-
         var enableFloatingBottomBar by rememberSaveable {
             mutableStateOf(VisualConfig.enableFloatingBottomBar)
         }
-
         // 移除 list 选项，仅保留 default / classic
         val homeLayoutItems = listOf(
             stringResource(id = R.string.settings_home_layout_default),
@@ -226,9 +182,7 @@ fun SettingScreen(navigator: TabNavigator) {
         val homeLayoutValues = listOf("default", "classic")
         var currentHomeLayout by rememberSaveable { mutableStateOf(prefs.getString("home_layout_style", "default") ?: "default") }
         val homeLayoutIndex = homeLayoutValues.indexOf(currentHomeLayout).let { if (it == -1) 0 else it }
-
         val floatingBottomPadding = if (LocalEnableFloatingBottomBar.current) 88.dp else 0.dp
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -245,7 +199,7 @@ fun SettingScreen(navigator: TabNavigator) {
                 SmallTitle(text = stringResource(R.string.settings_section_customization))
             }
             item {
-                    Card(modifier = Modifier.padding(top = 12.dp).fillMaxWidth()) {
+                Card(modifier = Modifier.padding(top = 12.dp).fillMaxWidth()) {
                     SuperDropdown(
                         title = stringResource(id = R.string.settings_theme),
                         summary = stringResource(id = R.string.settings_theme_summary),
@@ -263,7 +217,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             themeMode = index
                         }
                     )
-
                     AnimatedVisibility(visible = themeMode in 0..2) {
                         val colorItems = listOf(
                             stringResource(id = R.string.settings_key_color_default),
@@ -324,7 +277,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     var enableBlur by rememberSaveable {
                         mutableStateOf(VisualConfig.enableBlur)
                     }
@@ -344,7 +296,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             enableBlur = VisualConfig.enableBlur
                         }
                     )
-
                     SuperSwitch(
                         title = stringResource(id = R.string.settings_floating_bottom_bar),
                         summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
@@ -361,7 +312,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             enableFloatingBottomBar = it
                         }
                     )
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar
                     ) {
@@ -385,7 +335,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar
                     ) {
@@ -409,7 +358,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar && enableBlur
                     ) {
@@ -433,7 +381,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     SuperDropdown(
                         title = stringResource(id = R.string.settings_home_layout_style),
                         summary = stringResource(id = R.string.settings_home_layout_style_summary),
@@ -451,7 +398,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             currentHomeLayout = homeLayoutValues[index]
                         }
                     )
-
                     SuperArrow(
                         title = stringResource(id = R.string.settings_nav_layout_title),
                         summary = stringResource(id = R.string.settings_nav_layout_summary),
@@ -466,7 +412,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             navigator.navigate("navigation_layout")
                         }
                     )
-
                     SuperArrow(
                         title = stringResource(id = R.string.settings_page_scale),
                         summary = stringResource(id = R.string.settings_page_scale_summary),
@@ -509,7 +454,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             sliderValue = it
                         }
                     )
-
                     SuperDropdown(
                         title = stringResource(R.string.settings_app_language),
                         summary = stringResource(R.string.settings_app_language_summary),
@@ -537,7 +481,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     )
-
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var predictiveBackEnabled by rememberSaveable {
                             mutableStateOf(VisualConfig.predictiveBackGesture)
@@ -565,16 +508,14 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                 }
             }
-
             // --- Section: Kernel Patch ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_kernel))
             }
             item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                Card(modifier = Modifier.fillMaxWidth()) {
                     if (kPatchReady) {
                         val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
                         val clearKeyDialogContent =
@@ -621,7 +562,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     }
-
                     SuperSwitch(
                         title = stringResource(id = R.string.settings_donot_store_superkey),
                         summary = stringResource(id = R.string.settings_donot_store_superkey_summary),
@@ -638,7 +578,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             APatchKeyHelper.setShouldSkipStoreSuperKey(bSkipStoreSuperKey)
                         }
                     )
-
                     if (kPatchReady && aPatchReady) {
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_global_namespace_mode),
@@ -659,7 +598,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     if (kPatchReady) {
                         SuperArrow(
                             title = stringResource(R.string.setting_reset_su_path),
@@ -676,14 +614,13 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-
             // --- Section: Functions ---
             if (kPatchReady && aPatchReady) {
                 item {
                     SmallTitle(text = stringResource(R.string.settings_section_module))
                 }
                 item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                    Card(modifier = Modifier.fillMaxWidth()) {
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_magic_mount),
                             summary = stringResource(id = R.string.settings_magic_mount_summary),
@@ -700,7 +637,6 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isMagicMountEnabled = it
                             }
                         )
-
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_hide_service),
                             summary = stringResource(id = R.string.settings_hide_service_summary),
@@ -717,7 +653,6 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isHideServiceEnabled = it
                             }
                         )
-
                         SuperArrow(
                             title = stringResource(id = R.string.settings_umount_service),
                             summary = stringResource(id = R.string.settings_umount_service_summary),
@@ -735,7 +670,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-
             // --- Section: Behavior ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_general))
@@ -761,7 +695,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             stayOnPage = it
                         }
                     )
-
                     var apmSortEnabled by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("apm_sort_enabled", true))
                     }
@@ -781,7 +714,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             apmSortEnabled = it
                         }
                     )
-
                     var enableWebDebugging by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                     }
@@ -803,7 +735,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     )
-
                     var installConfirm by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("apm_install_confirm_enabled", true))
                     }
@@ -823,7 +754,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             installConfirm = it
                         }
                     )
-
                     var hideAboutCard by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("hide_about_card", true))
                     }
@@ -843,7 +773,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             prefs.edit { putBoolean("hide_about_card", isChecked) }
                         }
                     )
-
                     var checkUpdate by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("check_update", true))
                     }
@@ -863,7 +792,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             prefs.edit { putBoolean("check_update", isChecked) }
                         }
                     )
-
                     var blockKernelPatchUpdate by rememberSaveable {
                         mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
                     }
@@ -883,7 +811,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             prefs.edit { putBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, isChecked) }
                         }
                     )
-
                     var blockAndroidPatchUpdate by rememberSaveable {
                         mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, false))
                     }
@@ -905,30 +832,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     )
                 }
             }
-
-            // --- Section: Logs ---
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_about))
-            }
-            item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                    SuperArrow(
-                        title = stringResource(R.string.send_log),
-                        summary = stringResource(R.string.send_log_summary),
-                        startAction = {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Send,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onClick = {
-                            showLogBottomSheet.value = true
-                        }
-                    )
-                }
-            }
-
             item {
                 Spacer(Modifier.height(12.dp))
             }
@@ -937,76 +840,12 @@ fun SettingScreen(navigator: TabNavigator) {
 }
 
 @Composable
-fun LogBottomSheet(
-    showLogBottomSheet: MutableState<Boolean>,
-    scope: CoroutineScope,
-    exportBugreportLauncher: ActivityResultLauncher<String>,
-    loadingDialog: LoadingDialogHandle,
-    context: Context
-) {
-    SuperDialog(
-        show = showLogBottomSheet.value,
-        title = "Save Log",
-        onDismissRequest = { showLogBottomSheet.value = false }
-    ) {
-        Column {
-            SuperArrow(
-                title = stringResource(R.string.save_log),
-                onClick = {
-                    scope.launch {
-                        val formatter =
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm")
-                        val current = LocalDateTime.now().format(formatter)
-                        exportBugreportLauncher.launch("APatch_bugreport_${current}.tar.gz")
-                        showLogBottomSheet.value = false
-                    }
-                }
-            )
-            SuperArrow(
-                title = stringResource(R.string.send_log),
-                onClick = {
-                    scope.launch {
-                        val bugreport = loadingDialog.withLoading {
-                            withContext(Dispatchers.IO) {
-                                getBugreportFile(context)
-                            }
-                        }
-
-                        val uri: Uri = FileProvider.getUriForFile(
-                            context,
-                            "${BuildConfig.APPLICATION_ID}.fileprovider",
-                            bugreport
-                        )
-
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            setDataAndType(uri, "application/gzip")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-
-                        context.startActivity(
-                            Intent.createChooser(
-                                shareIntent,
-                                context.getString(R.string.send_log)
-                            )
-                        )
-                        showLogBottomSheet.value = false
-                    }
-                }
-            )
-        }
-    }
-}
-
-@Composable
 fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
     val context = LocalContext.current
     var suPath by remember { mutableStateOf(Natives.suPath()) }
-
     val suPathChecked: (path: String) -> Boolean = {
         it.startsWith("/") && it.trim().length > 1
     }
-
     SuperDialog(
         show = showDialog.value,
         title = stringResource(R.string.setting_reset_su_path),
@@ -1017,22 +856,17 @@ fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
             onValueChange = { suPath = it },
             label = stringResource(R.string.setting_reset_su_new_path),
         )
-
         Spacer(Modifier.height(12.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-
             TextButton(
                 stringResource(id = android.R.string.cancel),
                 onClick = { showDialog.value = false },
                 modifier = Modifier.weight(1f),
             )
-
             Spacer(Modifier.width(20.dp))
-
             TextButton(
                 stringResource(id = android.R.string.ok),
                 onClick = {
