@@ -11,7 +11,6 @@ import android.view.WindowManager
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -383,8 +382,7 @@ class MainActivity : AppCompatActivity() {
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
                             backgroundColor = MiuixTheme.colorScheme.surface,
-                            // 0.8 的 tint 几乎盖死模糊，降到 0.5 让内容模糊透出来
-                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.5f))
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.8f))
                         )
                     } else {
                         HazeStyle.Unspecified
@@ -400,43 +398,58 @@ class MainActivity : AppCompatActivity() {
 
                     LaunchedEffect(enableBlur, enableFloatingBottomBar, enableLiquidGlass) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                            // 低版本不支持模糊/悬浮/液态玻璃，除了写回全局配置，
-                            // 还必须同步组合内状态，否则 UI 仍按开启渲染导致无效
-                            if (enableBlur) {
-                                VisualConfig.enableBlur = false
-                                enableBlur = false
-                            }
-                            if (enableFloatingBottomBar) {
-                                VisualConfig.enableFloatingBottomBar = false
-                                enableFloatingBottomBar = false
-                            }
-                            if (enableLiquidGlass) {
-                                VisualConfig.enableLiquidGlass = false
-                                enableLiquidGlass = false
-                            }
+                            if (enableBlur) VisualConfig.enableBlur = false
+                            if (enableFloatingBottomBar) VisualConfig.enableFloatingBottomBar = false
+                            if (enableLiquidGlass) VisualConfig.enableLiquidGlass = false
                         }
                     }
 
-                    // 根容器：内容层与底部导航栏层叠加。
-                    // 毛玻璃的关键：内容必须延伸到导航栏背后（hazeSource 捕获全屏内容），
-                    // 导航栏再用 hazeEffect 模糊显示背后的内容。Scaffold 的 bottomBar 参数会把
-                    // 内容限制在导航栏上方，导致底部栏背后只有纯色背景，模糊永远不可见。
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MiuixTheme.colorScheme.surface)
+                    Scaffold(
+                        containerColor = MiuixTheme.colorScheme.surface,
+                        bottomBar = {
+                            if (enableFloatingBottomBar && backdrop != null) {
+                                val animatedOffsetY by animateDpAsState(
+                                    targetValue = if (showBottomBar) 0.dp else 200.dp,
+                                    animationSpec = tween(durationMillis = 300),
+                                    label = "floatingBarOffset"
+                                )
+                                Box(modifier = Modifier.offset(y = animatedOffsetY)) {
+                                    BottomBar(
+                                        mainPagerState = mainPagerState,
+                                        enableBlur = enableBlur,
+                                        enableFloatingBottomBar = true,
+                                        enableLiquidGlass = enableLiquidGlass,
+                                        hazeState = hazeState,
+                                        hazeStyle = hazeStyle,
+                                        backdrop = backdrop,
+                                        onUserInteraction = { resetBottomBarAutoHide() },
+                                    )
+                                }
+                            } else if (showBottomBar) {
+                                BottomBar(
+                                    mainPagerState = mainPagerState,
+                                    enableBlur = enableBlur,
+                                    enableFloatingBottomBar = false,
+                                    enableLiquidGlass = false,
+                                    hazeState = hazeState,
+                                    hazeStyle = hazeStyle,
+                                    backdrop = backdrop,
+                                )
+                            }
+                        }
                     ) {
                         CompositionLocalProvider(
                             LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
                         ) {
                         MainScreen(
                             modifier = Modifier
-                                .fillMaxSize()
                                 .then(
                                     if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
                                     else Modifier
                                 )
-                                // hazeSource 必须放在 padding 之前，捕获范围才是全屏
+                                .padding(bottom = if (showBottomBar) {
+                                    if (enableFloatingBottomBar) 0.dp else 65.dp
+                                } else 0.dp)
                                 .then(
                                     if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
                                     else Modifier
@@ -445,52 +458,11 @@ class MainActivity : AppCompatActivity() {
                                     if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
                                         Modifier.layerBackdrop(backdrop)
                                     else Modifier
-                                )
-                                .padding(
-                                    bottom = if (showBottomBar && !(enableBlur && hazeState != null)) {
-                                        if (enableFloatingBottomBar) 0.dp else 65.dp
-                                    } else 0.dp
                                 ),
                             onExternalNavConsumed = { navEventConsumed = true },
                         )
                         } // end LocalExternalNavEvent CompositionLocalProvider
-                        // 底部导航栏叠加在内容之上
-                        if (enableFloatingBottomBar && backdrop != null) {
-                            val animatedOffsetY by animateDpAsState(
-                                targetValue = if (showBottomBar) 0.dp else 200.dp,
-                                animationSpec = tween(durationMillis = 300),
-                                label = "floatingBarOffset"
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset(y = animatedOffsetY)
-                            ) {
-                                BottomBar(
-                                    modifier = Modifier.align(Alignment.BottomCenter),
-                                    mainPagerState = mainPagerState,
-                                    enableBlur = enableBlur,
-                                    enableFloatingBottomBar = true,
-                                    enableLiquidGlass = enableLiquidGlass,
-                                    hazeState = hazeState,
-                                    hazeStyle = hazeStyle,
-                                    backdrop = backdrop,
-                                    onUserInteraction = { resetBottomBarAutoHide() },
-                                )
-                            }
-                        } else if (showBottomBar) {
-                            BottomBar(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                mainPagerState = mainPagerState,
-                                enableBlur = enableBlur,
-                                enableFloatingBottomBar = false,
-                                enableLiquidGlass = false,
-                                hazeState = hazeState,
-                                hazeStyle = hazeStyle,
-                                backdrop = backdrop,
-                            )
-                        }
-                    } // end root Box
+                    } // end Scaffold content
 
                 // Update dialog
                 if (showUpdateDialog) {
@@ -549,7 +521,6 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 private fun BottomBar(
-    modifier: Modifier = Modifier,
     mainPagerState: MainPagerState,
     enableBlur: Boolean,
     enableFloatingBottomBar: Boolean,
@@ -611,7 +582,7 @@ private fun BottomBar(
         if (enableFloatingBottomBar && backdrop != null) {
             val safeBackdrop = backdrop
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
@@ -661,31 +632,22 @@ private fun BottomBar(
                 }
             }
         } else {
-            // 普通导航栏：外层 Box 承载调用方传入的 align，确保叠加布局中对齐到底部
-            Box(
-                modifier = modifier.fillMaxWidth()
-            ) {
-                NavigationBar(
-                    modifier = if (enableBlur && hazeState != null) {
-                        Modifier
-                            .fillMaxWidth()
-                            .defaultHazeEffect(hazeState, hazeStyle)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                    color = if (enableBlur) Color.Transparent else MiuixTheme.colorScheme.surface,
-                    content = {
-                        visibleDestinations.forEachIndexed { index, destination ->
-                            NavigationBarItem(
-                                icon = if (index == selectedIndex) destination.iconSelected else destination.iconNotSelected,
-                                label = stringResource(destination.label),
-                                selected = index == selectedIndex,
-                                onClick = { navigateToPage(index) }
-                            )
-                        }
+            NavigationBar(
+                modifier = if (enableBlur && hazeState != null) {
+                    Modifier.defaultHazeEffect(hazeState, hazeStyle)
+                } else Modifier,
+                color = if (enableBlur) Color.Transparent else MiuixTheme.colorScheme.surface,
+                content = {
+                    visibleDestinations.forEachIndexed { index, destination ->
+                        NavigationBarItem(
+                            icon = if (index == selectedIndex) destination.iconSelected else destination.iconNotSelected,
+                            label = stringResource(destination.label),
+                            selected = index == selectedIndex,
+                            onClick = { navigateToPage(index) }
+                        )
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
