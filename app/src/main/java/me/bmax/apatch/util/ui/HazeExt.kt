@@ -19,6 +19,5 @@ fun Modifier.defaultHazeEffect(
     blurRadius = 20.dp
     inputScale = HazeInputScale.Fixed(0.5f)
     noiseFactor = 0.03f
-    // 内容滚动时实时刷新模糊纹理，否则底栏模糊会停留在首帧，看起来像纯色块
-    forceInvalidateOnPreDraw = true
+    forceInvalidateOnPreDraw = false
 }
