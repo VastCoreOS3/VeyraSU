@@ -120,9 +120,6 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.abs
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.height
 
 class MainActivity : AppCompatActivity() {
 
@@ -467,9 +464,9 @@ class MainActivity : AppCompatActivity() {
                                 onExternalNavConsumed = { navEventConsumed = true },
                             )
                     
-                            // 顶部状态栏毛玻璃模糊条
+                            // 顶部状态栏毛玻璃，使用全限定类名，消除WindowInsets冲突
                             if (enableBlur && hazeState != null) {
-                                val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                                val topInset = androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -479,7 +476,6 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     } // end LocalExternalNavEvent CompositionLocalProvider
-                    
 
                 // Update dialog
                 if (showUpdateDialog) {
