@@ -382,7 +382,7 @@ class MainActivity : AppCompatActivity() {
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
                             backgroundColor = MiuixTheme.colorScheme.surface,
-                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.8f))
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.4f))
                         )
                     } else {
                         HazeStyle.Unspecified
