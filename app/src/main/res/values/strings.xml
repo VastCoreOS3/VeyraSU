@@ -44,8 +44,6 @@
     <string name="settings_block_kernelpatch_update_summary">Do not show KernelPatch update notifications</string>
     <string name="settings_block_androidpatch_update">Block System Patch Update</string>
     <string name="settings_block_androidpatch_update_summary">Do not show system patch (APD) update notifications</string>
-    <string name="hide_about_card">Hide About Card</string>
-    <string name="hide_about_card_summary">Hide the about card on home screen</string>
     <string name="update_available_title">Update Available</string>
     <string name="update_available_message">A new version of VeyraSU is available. Update now?</string>
     <string name="update_close">Later</string>
@@ -53,9 +51,6 @@
     <string name="unofficial_version_title">Unofficial Version</string>
     <string name="unofficial_version_message">You are using a third-party VeyraSU manager, which may cause financial loss. Please download the official app!</string>
     <string name="go_to_github">Go to Github</string>
-
-    <string name="home_learn_apatch">Learn VeyraSU</string>
-    <string name="home_click_to_learn_apatch">Learn about the features of VeyraSU and how to use</string>
 
     <string name="about_source_code"><![CDATA[<p>View source code at %1$s<p/>Join our %2$s channel<p/>Join our %3$s group]]></string>
     <string name="send_log">Send logs</string>
