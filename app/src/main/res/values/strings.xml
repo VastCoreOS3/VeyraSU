@@ -58,9 +58,6 @@
     <string name="home_click_to_learn_apatch">Learn about the features of VeyraSU and how to use</string>
 
     <string name="about_source_code"><![CDATA[<p>View source code at %1$s<p/>Join our %2$s channel<p/>Join our %3$s group]]></string>
-    <string name="send_log">Send logs</string>
-    <string name="save_log">Save logs</string>
-    <string name="log_saved">Logs saved</string>
     <string name="safe_mode">Safe mode</string>
     <string name="kernel_versions">Kernel</string>
 
@@ -78,8 +75,8 @@
 
     <string name="home_installing">Installing</string>
     <string name="home_need_update">New version available</string>
-    <string name="kpatch_version">Version: %s</string>
-    <string name="apatch_version">Version: %s</string>
+    <string name="kpatch_version">Version:  %s</string>
+    <string name="apatch_version">Version:  %s (%s)</string>
     <string name="apatch_version_update">Version: %1$s -&gt; %2$s</string>
     <string name="kpatch_version_update">Version: %1$s -&gt; %2$s</string>
     <string name="kpatch_shadow_path_title">kpatch</string>
@@ -386,7 +383,6 @@
     <string name="settings_section_module">Functions</string>
     <string name="settings_section_customization">Customization</string>
     <string name="settings_section_general">General</string>
-    <string name="settings_section_about">Logs</string>
 
     <!-- Seed Color -->
     <string name="settings_key_color">Seed color</string>
@@ -414,7 +410,6 @@
     <string name="settings_app_language_summary">Change app display language</string>
     <string name="clear_super_key_summary">Remove stored SuperKey credential</string>
     <string name="setting_reset_su_path_summary">Reset su executable path</string>
-    <string name="send_log_summary">Export or share bug reports</string>
 
     <string name="settings_predictive_back_gesture">Predictive back gesture</string>
     <string name="settings_predictive_back_gesture_summary">Enable Android 14+ predictive back gesture animation</string>
