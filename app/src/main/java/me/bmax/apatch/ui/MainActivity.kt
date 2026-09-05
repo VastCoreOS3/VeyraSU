@@ -381,8 +381,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
-                            backgroundColor = MiuixTheme.colorScheme.surface,
-                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.8f))
+                            backgroundColor = Color.Transparent,
+                            blurRadius = 24.dp,
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.38f))
                         )
                     } else {
                         HazeStyle.Unspecified
@@ -438,31 +439,44 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     ) {
-                        CompositionLocalProvider(
-                            LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
-                        ) {
-                        MainScreen(
-                            modifier = Modifier
-                                .then(
-                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
-                                    else Modifier
+                    CompositionLocalProvider(
+                        LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            MainScreen(
+                                modifier = Modifier
+                                    .then(
+                                        if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
+                                        else Modifier
+                                    )
+                                    .padding(bottom = if (showBottomBar) {
+                                        if (enableFloatingBottomBar) 0.dp else 65.dp
+                                    } else 0.dp)
+                                    .then(
+                                        if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
+                                        else Modifier
+                                    )
+                                    .then(
+                                        if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                            Modifier.layerBackdrop(backdrop)
+                                        else Modifier
+                                    ),
+                                onExternalNavConsumed = { navEventConsumed = true },
+                            )
+                    
+                            // 顶部状态栏毛玻璃模糊条
+                            if (enableBlur && hazeState != null) {
+                                val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(topInset)
+                                        .defaultHazeEffect(hazeState, hazeStyle)
                                 )
-                                .padding(bottom = if (showBottomBar) {
-                                    if (enableFloatingBottomBar) 0.dp else 65.dp
-                                } else 0.dp)
-                                .then(
-                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
-                                    else Modifier
-                                )
-                                .then(
-                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
-                                        Modifier.layerBackdrop(backdrop)
-                                    else Modifier
-                                ),
-                            onExternalNavConsumed = { navEventConsumed = true },
-                        )
-                        } // end LocalExternalNavEvent CompositionLocalProvider
-                    } // end Scaffold content
+                            }
+                        }
+                    } // end LocalExternalNavEvent CompositionLocalProvider
+                    
 
                 // Update dialog
                 if (showUpdateDialog) {
