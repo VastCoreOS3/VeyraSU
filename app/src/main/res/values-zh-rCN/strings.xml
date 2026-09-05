@@ -12,13 +12,11 @@
     <string name="home_install_unknown">未安装或未鉴权</string>
     <string name="home_install_unknown_summary">点此安装</string>
     <string name="reboot_download">重启至 Download</string>
-    <string name="home_click_to_learn_apatch">查看 VeyraSU 的特性和用法</string>
     <string name="reboot_edl">重启至 EDL</string>
     <string name="reboot_fastbootd">重启至 FastbootD</string>
     <string name="home_installing">安装中</string>
     <string name="safe_mode">安全模式</string>
     <string name="reboot_recovery">重启至 Recovery</string>
-    <string name="home_learn_apatch">了解 VeyraSU</string>
     <string name="kernel_patch">内核补丁</string>
     <string name="kernel_versions">内核</string>
     <string name="home_click_to_install">点此安装</string>
@@ -193,8 +191,6 @@
     <string name="settings_block_kernelpatch_update_summary">不显示内核补丁的更新通知</string>
     <string name="settings_block_androidpatch_update">屏蔽系统补丁更新提示</string>
     <string name="settings_block_androidpatch_update_summary">不显示系统补丁(APD)的更新通知</string>
-    <string name="hide_about_card">隐藏关于卡片</string>
-    <string name="hide_about_card_summary">隐藏主页的关于卡片</string>
     <string name="update_available_title">有新版本可用</string>
     <string name="update_available_message">VeyraSU 有新版本可用，是否立即更新？</string>
     <string name="update_close">稍后</string>
