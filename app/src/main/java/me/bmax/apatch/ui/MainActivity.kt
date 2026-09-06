@@ -262,13 +262,14 @@ class MainActivity : AppCompatActivity() {
                         LocalVisibleDestinations provides visibleDestinations,
                     ) {
                     val loadingDialog = rememberLoadingDialog()
-
                     var showUpdateDialog by remember { mutableStateOf(false) }
                     var updateChecked by remember { mutableStateOf(false) }
-
+                    
                     LaunchedEffect(Unit) {
                         if (!updateChecked) {
-                            val checkUpdate = APApplication.sharedPreferences.getBoolean("check_update", true)
+                            // ========== 完全禁用启动自动更新 ==========
+                            /*
+                            val checkUpdate = APApplication.sharedPreferences.getBoolean("check_update", false)
                             if (checkUpdate) {
                                 val hasUpdate = withContext(Dispatchers.IO) {
                                     try {
@@ -281,9 +282,11 @@ class MainActivity : AppCompatActivity() {
                                     showUpdateDialog = true
                                 }
                             }
+                            */
                             updateChecked = true
                         }
                     }
+
 
                     var externalNavEvent by remember { mutableStateOf<ExternalNavEvent?>(null) }
                     var navEventConsumed by remember { mutableStateOf(false) }
