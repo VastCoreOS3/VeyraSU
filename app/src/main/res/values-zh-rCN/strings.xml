@@ -114,7 +114,7 @@
     <string name="clear_super_key">清除超级密钥</string>
     <string name="apm_not_installed">尚未注入系统补丁</string>
     <string name="system_default">系统默认</string>
-    <string name="settings_app_language">语言</string>
+    <!-- <string name="settings_app_language">语言</string> -->
     <string name="settings_page_scale">应用 DPI</string>
     <string name="settings_nav_layout_title">导航布局</string>
     <string name="settings_nav_layout_summary">自定义导航栏按钮</string>
@@ -185,8 +185,8 @@
     <string name="home_dialog_auth_fail_title">超级密钥鉴权失败</string>
     <string name="home_dialog_auth_fail_content">超级密钥验证失败，因此 VeyraSU 不能正常工作。\n下面是一些可能的原因： \n⒈ 未使用 KernelPatch 修补内核镜像 \n⒉ KernelPatch 修补后的内核镜像未刷入 \n⒊超级密钥输入错误或包含特殊字符\n⒋设备不支持 VeyraSU 以及 KernelPatch \n\n请检查后重试，如果问题仍然存在，可随时前往 GitHub 仓库的 issues 页面提问。</string>
     <string name="home_more_menu_about">关于</string>
-    <string name="settings_check_update">检查更新</string>
-    <string name="settings_check_update_summary">应用启动时自动检测更新</string>
+    <!-- <string name="settings_check_update">检查更新</string> -->
+    <!-- <string name="settings_check_update_summary">应用启动时自动检测更新</string> -->
     <string name="settings_block_kernelpatch_update">屏蔽内核补丁更新提示</string>
     <string name="settings_block_kernelpatch_update_summary">不显示内核补丁的更新通知</string>
     <string name="settings_block_androidpatch_update">屏蔽系统补丁更新提示</string>
@@ -365,7 +365,7 @@
     <string name="settings_theme_summary">选择应用的颜色模式</string>
     <string name="settings_home_layout_style_summary">切换网格和列表布局</string>
     <string name="settings_page_scale_summary">调整应用显示密度</string>
-    <string name="settings_app_language_summary">更改应用显示语言</string>
+    <!-- <string name="settings_app_language_summary">更改应用显示语言</string> -->
     <string name="clear_super_key_summary">移除已存储的 SuperKey 凭证</string>
     <string name="setting_reset_su_path_summary">重置 su 可执行文件路径</string>
     <string name="send_log_summary">导出或分享错误报告</string>
