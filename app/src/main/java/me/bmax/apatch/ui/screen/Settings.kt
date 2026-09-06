@@ -70,7 +70,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
-import androidx.core.os.LocaleListCompat
+// import androidx.core.os.LocaleListCompat
 import me.bmax.apatch.ui.screen.TabNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -193,14 +193,14 @@ fun SettingScreen(navigator: TabNavigator) {
         val prefs = APApplication.sharedPreferences
         var sliderValue by rememberSaveable { mutableFloatStateOf(PageScaleUtils.currentScale) }
 
-        val languages = stringArrayResource(id = R.array.languages)
-        val languagesValues = stringArrayResource(id = R.array.languages_values)
-        val currentLocales = AppCompatDelegate.getApplicationLocales()
-        val currentLanguageTag = if (currentLocales.isEmpty) null
-        else currentLocales.get(0)?.toLanguageTag()
-        val langInitialIndex = if (currentLanguageTag == null) 0
-        else languagesValues.indexOf(currentLanguageTag).let { if (it >= 0) it else 0 }
-        var langSelectedIndex by remember { mutableStateOf(langInitialIndex) }
+        // val languages = stringArrayResource(id = R.array.languages)
+        // val languagesValues = stringArrayResource(id = R.array.languages_values)
+        // val currentLocales = AppCompatDelegate.getApplicationLocales()
+        // val currentLanguageTag = if (currentLocales.isEmpty) null
+        // else currentLocales.get(0)?.toLanguageTag()
+        // val langInitialIndex = if (currentLanguageTag == null) 0
+        // else languagesValues.indexOf(currentLanguageTag).let { if (it >= 0) it else 0 }
+        // var langSelectedIndex by remember { mutableStateOf(langInitialIndex) }
 
         var themeMode by rememberSaveable {
             mutableIntStateOf(prefs.getInt("color_mode", 0))
@@ -510,33 +510,33 @@ fun SettingScreen(navigator: TabNavigator) {
                         }
                     )
 
-                    SuperDropdown(
-                        title = stringResource(R.string.settings_app_language),
-                        summary = stringResource(R.string.settings_app_language_summary),
-                        items = languages.toList(),
-                        selectedIndex = langSelectedIndex,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Language,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onSelectedIndexChange = { newIndex ->
-                            langSelectedIndex = newIndex
-                            if (newIndex == 0) {
-                                AppCompatDelegate.setApplicationLocales(
-                                    LocaleListCompat.getEmptyLocaleList()
-                                )
-                            } else {
-                                AppCompatDelegate.setApplicationLocales(
-                                    LocaleListCompat.forLanguageTags(
-                                        languagesValues[newIndex]
-                                    )
-                                )
-                            }
-                        }
-                    )
+                    // SuperDropdown(
+                        // title = stringResource(R.string.settings_app_language),
+                        // summary = stringResource(R.string.settings_app_language_summary),
+                        // items = languages.toList(),
+                        // selectedIndex = langSelectedIndex,
+                        // startAction = {
+                            // Icon(
+                                // Icons.Rounded.Language,
+                                // null,
+                                // modifier = Modifier.padding(end = 6.dp)
+                            // )
+                        // },
+                        // onSelectedIndexChange = { newIndex ->
+                            // langSelectedIndex = newIndex
+                            // if (newIndex == 0) {
+                                // AppCompatDelegate.setApplicationLocales(
+                                    // LocaleListCompat.getEmptyLocaleList()
+                                // )
+                            // } else {
+                                // AppCompatDelegate.setApplicationLocales(
+                                    // LocaleListCompat.forLanguageTags(
+                                        // languagesValues[newIndex]
+                                    // )
+                                // )
+                            // }
+                        // }
+                    // )
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var predictiveBackEnabled by rememberSaveable {
@@ -824,25 +824,25 @@ fun SettingScreen(navigator: TabNavigator) {
                         }
                     )
 
-                     var checkUpdate by rememberSaveable {
-                         mutableStateOf(prefs.getBoolean("check_update", true))
-                     }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_check_update),
-                        summary = stringResource(id = R.string.settings_check_update_summary),
-                        checked = checkUpdate,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.SystemUpdate,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = { isChecked ->
-                            checkUpdate = isChecked
-                            prefs.edit { putBoolean("check_update", isChecked) }
-                        }
-                    )
+                     // var checkUpdate by rememberSaveable {
+                         // mutableStateOf(prefs.getBoolean("check_update", false))
+                     // }
+                    // SuperSwitch(
+                        // title = stringResource(id = R.string.settings_check_update),
+                        // summary = stringResource(id = R.string.settings_check_update_summary),
+                        // checked = checkUpdate,
+                        // startAction = {
+                            // Icon(
+                                // Icons.Rounded.SystemUpdate,
+                                // null,
+                                // modifier = Modifier.padding(end = 6.dp)
+                            // )
+                        // },
+                        // onCheckedChange = { isChecked ->
+                            // checkUpdate = isChecked
+                            // prefs.edit { putBoolean("check_update", isChecked) }
+                        // }
+                    // )
 
                     var blockKernelPatchUpdate by rememberSaveable {
                         mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
