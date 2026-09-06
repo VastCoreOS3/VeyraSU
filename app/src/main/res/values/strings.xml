@@ -426,4 +426,12 @@
     <string name="apm_shortcut_webui">WebUI</string>
     <string name="apm_shortcut_name_label">Name</string>
     <string name="apm_shortcut_create">Create</string>
+    
+    <string name="apm_first_use_title">First‑time use</string>
+    <string name="apm_first_use_text">Welcome to use Apatch</string>
+    <string name="settings_force_overlayfs_mode">Force OverlayFS mode</string>
+    <string name="settings_force_overlayfs_mode_summary">Force enable overlayfs for module mounting</string>
+    <string name="settings_lite_mode">Lite mode</string>
+    <string name="settings_lite_mode_mode_summary">Reduce memory and storage overhead</string>
+    
 </resources>
