@@ -125,17 +125,7 @@ object Version {
     }
 
     private fun installedApdVString(): String {
-        val versionResult = rootShellForResult("cat ${APApplication.APATCH_VERSION_PATH}")
-        if (versionResult.isSuccess && versionResult.out.isNotEmpty()) {
-            val version = versionResult.out.joinToString("\n").trim()
-            val versionNum = Regex("\\d+").find(version)?.value
-            if (versionNum != null && versionNum.isNotEmpty()) {
-                Log.i("APatch", "[installedApdVString@Version] Read version from file: $versionNum")
-                installedApdVString = versionNum
-                return installedApdVString
-            }
-        }
-
+        // 优先使用官方推荐 apd -V
         val resultShell = rootShellForResult("${APApplication.APD_PATH} -V")
         if (resultShell.isSuccess) {
             val result = resultShell.out.joinToString("\n")
@@ -146,7 +136,21 @@ object Version {
                 return installedApdVString
             }
         }
-
+    
+        // ========== 旧文件路径仅作为旧版本兜底，此处抑制废弃API警告 ==========
+        @Suppress("DEPRECATION")
+        val oldVersionPath = APApplication.APATCH_VERSION_PATH
+        val versionResult = rootShellForResult("cat $oldVersionPath")
+        if (versionResult.isSuccess && versionResult.out.isNotEmpty()) {
+            val version = versionResult.out.joinToString("\n").trim()
+            val versionNum = Regex("\\d+").find(version)?.value
+            if (versionNum != null && versionNum.isNotEmpty()) {
+                Log.i("APatch", "[installedApdVString@Version] Read version from old file: $versionNum")
+                installedApdVString = versionNum
+                return installedApdVString
+            }
+        }
+    
         Log.w("APatch", "[installedApdVString@Version] Version check failed, checking file existence...")
         installedApdVString = checkInstallationFromFiles()
         return installedApdVString
