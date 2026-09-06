@@ -71,6 +71,7 @@ import top.yukonga.miuix.kmp.basic.VerticalScrollBar
 import top.yukonga.miuix.kmp.interfaces.ExperimentalScrollBarApi
 import top.yukonga.miuix.kmp.basic.rememberScrollBarAdapter
 
+@OptIn(ExperimentalScrollBarApi::class)
 @Composable
 fun SuperUserScreen() {
     val viewModel = viewModel<SuperUserViewModel>()
@@ -127,7 +128,6 @@ fun SuperUserScreen() {
                     }
                 }
             }
-            @OptIn(ExperimentalScrollBarApi::class)
             val suScrollBarAdapter = rememberScrollBarAdapter(superUserListState)
             VerticalScrollBar(
                 adapter = suScrollBarAdapter,
