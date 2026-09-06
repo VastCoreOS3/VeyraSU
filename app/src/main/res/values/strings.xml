@@ -24,7 +24,7 @@
     <string name="reboot_edl">Reboot to EDL</string>
     <string name="reboot_fastbootd">Reboot to FastbootD</string>
     <string name="about">About</string>
-    <string name="settings_app_language">Language</string>
+    <!-- <string name="settings_app_language">Language</string> -->
     <string name="system_default">System default</string>
     <string name="settings_page_scale">App DPI</string>
     <string name="settings_nav_layout_title">Navigation Layout</string>
@@ -38,8 +38,8 @@
     <string name="settings_apm_sorting_summary">Make modules with higher priority display first.</string>
     <string name="settings_clear_super_key_dialog">Do you really want to proceed?</string>
 
-    <string name="settings_check_update">Check for updates</string>
-    <string name="settings_check_update_summary">Automatically check for updates when opening the app</string>
+    <!-- <string name="settings_check_update">Check for updates</string> -->
+    <!-- <string name="settings_check_update_summary">Automatically check for updates when opening the app</string> -->
     <string name="settings_block_kernelpatch_update">Block KernelPatch Update</string>
     <string name="settings_block_kernelpatch_update_summary">Do not show KernelPatch update notifications</string>
     <string name="settings_block_androidpatch_update">Block System Patch Update</string>
@@ -406,7 +406,7 @@
     <!-- Settings Summaries -->
     <string name="settings_home_layout_style_summary">Switch between grid and list layout</string>
     <string name="settings_page_scale_summary">Adjust app display density</string>
-    <string name="settings_app_language_summary">Change app display language</string>
+    <!-- <string name="settings_app_language_summary">Change app display language</string> -->
     <string name="clear_super_key_summary">Remove stored SuperKey credential</string>
     <string name="setting_reset_su_path_summary">Reset su executable path</string>
     <string name="send_log_summary">Export or share bug reports</string>
