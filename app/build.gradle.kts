@@ -66,19 +66,17 @@ android {
         }
         release {
             isMinifyEnabled = false
-            isShrinkResources = false
+            isShrinkResources = true
             isDebuggable = false
             multiDexEnabled = true
             vcsInfo.include = false
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
-            /*
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            */
         }
     }
 
