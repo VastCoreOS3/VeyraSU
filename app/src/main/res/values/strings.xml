@@ -212,8 +212,6 @@
 
     <string name="apm_webui_open">Open</string>
     <string name="apm_action">Action</string>
-    <string name="settings_apm_stay_on_page">Stay on page</string>
-    <string name="settings_apm_stay_on_page_summary">Do not automatically return after the system module performs the operation</string>
     <string name="enable_web_debugging">Enable WebView debugging</string>
     <string name="enable_web_debugging_summary">Can be used to debug WebUI. Please enable only when needed.</string>
     <string name="apm_install_confirm_title">Install Module</string>
