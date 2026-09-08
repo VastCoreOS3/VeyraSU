@@ -503,13 +503,7 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_kernel))
-            }
-            item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
+ 
                     if (kPatchReady) {
                         val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
                         val clearKeyDialogContent =
@@ -606,14 +600,8 @@ fun SettingScreen(navigator: TabNavigator) {
                             onClick = { showResetSuPathDialog.value = true }
                         )
                     }
-                }
-            }
-            if (kPatchReady && aPatchReady) {
-                item {
-                    SmallTitle(text = stringResource(R.string.settings_section_module))
-                }
-                item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+            
+                    if (kPatchReady && aPatchReady) {
                         var enableWebDebugging by rememberSaveable {
                             mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                         }
@@ -667,50 +655,21 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isHideServiceEnabled = it
                             }
                         )
-                        // SuperArrow(
-                            // title = stringResource(id = R.string.settings_umount_service),
-                            // summary = stringResource(id = R.string.settings_umount_service_summary),
-                            // startAction = {
-                                // Icon(
-                                    // Icons.Rounded.Eject,
-                                    // null,
-                                    // modifier = Modifier.padding(end = 6.dp)
-                                // )
-                            // },
-                            // onClick = {
-                                // navigator.navigate("umount_config")
-                            // }
-                        // )
+                        SuperArrow(
+                            title = stringResource(R.string.send_log),
+                            summary = stringResource(R.string.send_log_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.Send,
+                                    null,
+                                    modifier = Modifier.padding(end = 6.dp)
+                                )
+                            },
+                            onClick = {
+                                showLogBottomSheet.value = true
+                            }
+                        )
                     }
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_general))
-            }
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_about))
-            }
-            item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                    SuperArrow(
-                        title = stringResource(R.string.send_log),
-                        summary = stringResource(R.string.send_log_summary),
-                        startAction = {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Send,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onClick = {
-                            showLogBottomSheet.value = true
-                        }
-                    )
                 }
             }
             item {
