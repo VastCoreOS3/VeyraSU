@@ -614,6 +614,27 @@ fun SettingScreen(navigator: TabNavigator) {
                 }
                 item {
                 Card(modifier = Modifier.fillMaxWidth()) {
+                        var enableWebDebugging by rememberSaveable {
+                            mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
+                        }
+                        SuperSwitch(
+                            title = stringResource(id = R.string.enable_web_debugging),
+                            summary = stringResource(id = R.string.enable_web_debugging_summary),
+                            checked = enableWebDebugging,
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.BugReport,
+                                    null,
+                                    modifier = Modifier.padding(end = 6.dp)
+                                )
+                            },
+                            onCheckedChange = { isChecked ->
+                                enableWebDebugging = isChecked
+                                APApplication.sharedPreferences.edit {
+                                    putBoolean("enable_web_debugging", isChecked)
+                                }
+                            }
+                        )
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_magic_mount),
                             summary = stringResource(id = R.string.settings_magic_mount_summary),
@@ -668,27 +689,7 @@ fun SettingScreen(navigator: TabNavigator) {
             }
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    var enableWebDebugging by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.enable_web_debugging),
-                        summary = stringResource(id = R.string.enable_web_debugging_summary),
-                        checked = enableWebDebugging,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.BugReport,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = { isChecked ->
-                            enableWebDebugging = isChecked
-                            APApplication.sharedPreferences.edit {
-                                putBoolean("enable_web_debugging", isChecked)
-                            }
-                        }
-                    )
+
                 }
             }
             item {
