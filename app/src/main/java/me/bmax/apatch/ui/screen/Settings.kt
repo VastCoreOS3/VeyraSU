@@ -68,7 +68,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
-import me.bmax.apatch.ui.screen.TabNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -77,6 +76,7 @@ import me.bmax.apatch.APApplication
 import me.bmax.apatch.BuildConfig
 import me.bmax.apatch.Natives
 import me.bmax.apatch.R
+import me.bmax.apatch.ui.screen.TabNavigator
 import me.bmax.apatch.ui.component.LoadingDialogHandle
 import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
@@ -112,6 +112,7 @@ import top.yukonga.miuix.kmp.extra.SuperDropdown
 import top.yukonga.miuix.kmp.extra.SuperSwitch
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
+
 @Composable
 fun SettingScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
@@ -162,6 +163,7 @@ fun SettingScreen(navigator: TabNavigator) {
             }
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -179,8 +181,7 @@ fun SettingScreen(navigator: TabNavigator) {
                 context
             )
         }
-    )
-    { paddingValues ->
+    ) { paddingValues ->
         val prefs = APApplication.sharedPreferences
         var sliderValue by rememberSaveable { mutableFloatStateOf(PageScaleUtils.currentScale) }
         var themeMode by rememberSaveable {
@@ -497,7 +498,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 )
             }
-
             if (kPatchReady) {
                 val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
                 val clearKeyDialogContent =
@@ -594,7 +594,7 @@ fun SettingScreen(navigator: TabNavigator) {
                     onClick = { showResetSuPathDialog.value = true }
                 )
             }
-    
+
             if (kPatchReady && aPatchReady) {
                 var enableWebDebugging by rememberSaveable {
                     mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
@@ -666,8 +666,9 @@ fun SettingScreen(navigator: TabNavigator) {
             }
             item {
                 Spacer(Modifier.height(12.dp))
+            }
         }
-    }
+    } // ✅【关键修复】补回Scaffold内容lambda闭合大括号！
 }
 
 @Composable
@@ -728,6 +729,7 @@ fun LogBottomSheet(
         }
     }
 }
+
 @Composable
 fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
     val context = LocalContext.current
