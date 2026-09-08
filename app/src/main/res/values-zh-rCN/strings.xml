@@ -187,10 +187,6 @@
     <string name="home_more_menu_about">关于</string>
     <!-- <string name="settings_check_update">检查更新</string> -->
     <!-- <string name="settings_check_update_summary">应用启动时自动检测更新</string> -->
-    <string name="settings_block_kernelpatch_update">屏蔽内核补丁更新提示</string>
-    <string name="settings_block_kernelpatch_update_summary">不显示内核补丁的更新通知</string>
-    <string name="settings_block_androidpatch_update">屏蔽系统补丁更新提示</string>
-    <string name="settings_block_androidpatch_update_summary">不显示系统补丁(APD)的更新通知</string>
     <string name="update_available_title">有新版本可用</string>
     <string name="update_available_message">VeyraSU 有新版本可用，是否立即更新？</string>
     <string name="update_close">稍后</string>
