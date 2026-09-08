@@ -68,7 +68,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
-// import androidx.core.os.LocaleListCompat
 import me.bmax.apatch.ui.screen.TabNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -217,11 +216,6 @@ fun SettingScreen(navigator: TabNavigator) {
                 bottom = paddingValues.calculateBottomPadding() + floatingBottomPadding + 12.dp
             )
         ) {
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_customization))
-            }
-            item {
-                    Card(modifier = Modifier.padding(top = 12.dp).fillMaxWidth()) {
                     SuperDropdown(
                         title = stringResource(id = R.string.settings_theme),
                         summary = stringResource(id = R.string.settings_theme_summary),
