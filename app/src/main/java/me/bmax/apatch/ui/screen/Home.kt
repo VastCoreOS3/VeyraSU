@@ -139,11 +139,6 @@ fun MainHomeScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
     val kpState by APApplication.kpStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     val apStateRaw by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-    val apState = if (apStateRaw == APApplication.State.ANDROIDPATCH_NEED_UPDATE && apApp.isAndroidPatchUpdateBlocked()) {
-        APApplication.State.ANDROIDPATCH_INSTALLED
-    } else {
-        apStateRaw
-    }
     Scaffold(
         topBar = {
             TopBar(
@@ -200,11 +195,6 @@ fun ClassicHomeScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
     val kpState by APApplication.kpStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     val apStateRaw by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-    val apState = if (apStateRaw == APApplication.State.ANDROIDPATCH_NEED_UPDATE && apApp.isAndroidPatchUpdateBlocked()) {
-        APApplication.State.ANDROIDPATCH_INSTALLED
-    } else {
-        apStateRaw
-    }
     Scaffold(
         topBar = {
             TopBar(
