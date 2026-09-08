@@ -844,45 +844,45 @@ fun SettingScreen(navigator: TabNavigator) {
                         // }
                     // )
 
-                    var blockKernelPatchUpdate by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_block_kernelpatch_update),
-                        summary = stringResource(id = R.string.settings_block_kernelpatch_update_summary),
-                        checked = blockKernelPatchUpdate,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Lock,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = { isChecked ->
-                            blockKernelPatchUpdate = isChecked
-                            prefs.edit { putBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, isChecked) }
-                        }
-                    )
+                    // var blockKernelPatchUpdate by rememberSaveable {
+                        // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
+                    // }
+                    // SuperSwitch(
+                        // title = stringResource(id = R.string.settings_block_kernelpatch_update),
+                        // summary = stringResource(id = R.string.settings_block_kernelpatch_update_summary),
+                        // checked = blockKernelPatchUpdate,
+                        // startAction = {
+                            // Icon(
+                                // Icons.Rounded.Lock,
+                                // null,
+                                // modifier = Modifier.padding(end = 6.dp)
+                            // )
+                        // },
+                        // onCheckedChange = { isChecked ->
+                            // blockKernelPatchUpdate = isChecked
+                            // prefs.edit { putBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, isChecked) }
+                        // }
+                    // )
 
-                    var blockAndroidPatchUpdate by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, false))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_block_androidpatch_update),
-                        summary = stringResource(id = R.string.settings_block_androidpatch_update_summary),
-                        checked = blockAndroidPatchUpdate,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Lock,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = { isChecked ->
-                            blockAndroidPatchUpdate = isChecked
-                            prefs.edit { putBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, isChecked) }
-                        }
-                    )
+                    // var blockAndroidPatchUpdate by rememberSaveable {
+                        // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, false))
+                    // }
+                    // SuperSwitch(
+                        // title = stringResource(id = R.string.settings_block_androidpatch_update),
+                        // summary = stringResource(id = R.string.settings_block_androidpatch_update_summary),
+                        // checked = blockAndroidPatchUpdate,
+                        // startAction = {
+                            // Icon(
+                                // Icons.Rounded.Lock,
+                                // null,
+                                // modifier = Modifier.padding(end = 6.dp)
+                            // )
+                        // },
+                        // onCheckedChange = { isChecked ->
+                            // blockAndroidPatchUpdate = isChecked
+                            // prefs.edit { putBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, isChecked) }
+                        // }
+                    // )
                 }
             }
 
