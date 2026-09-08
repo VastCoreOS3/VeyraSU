@@ -138,7 +138,7 @@ fun HomeScreen(navigator: TabNavigator) {
 fun MainHomeScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
     val kpState by APApplication.kpStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-    val apStateRaw by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+    val apState by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     Scaffold(
         topBar = {
             TopBar(
@@ -194,7 +194,7 @@ fun MainHomeScreen(navigator: TabNavigator) {
 fun ClassicHomeScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
     val kpState by APApplication.kpStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-    val apStateRaw by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+    val apState by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     Scaffold(
         topBar = {
             TopBar(
