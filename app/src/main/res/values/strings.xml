@@ -34,8 +34,6 @@
     <string name="settings_show_superuser">Show SuperUser</string>
     <string name="settings_global_namespace_mode">Global namespace mode</string>
     <string name="settings_global_namespace_mode_summary">All root sessions use the global mount namespace</string>
-    <string name="settings_apm_sorting">Smart APM sorting</string>
-    <string name="settings_apm_sorting_summary">Make modules with higher priority display first.</string>
     <string name="settings_clear_super_key_dialog">Do you really want to proceed?</string>
 
     <!-- <string name="settings_check_update">Check for updates</string> -->
