@@ -225,37 +225,31 @@ fun APModuleScreen(navigator: TabNavigator) {
                     }
                     val data = it.data ?: return@rememberLauncherForActivityResult
                     val uri = data.data ?: return@rememberLauncherForActivityResult
-
                     Log.i("ModuleScreen", "select zip result: $uri")
-
-                    val prefs = APApplication.sharedPreferences
                     scope.launch {
                         val cachedFile = withContext(Dispatchers.IO) {
                             uri.cacheToLocalFile()
                         }
                         val installUri = if (cachedFile != null) Uri.fromFile(cachedFile) else uri
-                        if (prefs.getBoolean("apm_install_confirm_enabled", true)) {
-                            pendingInstallUri = installUri
-                            val fileName = cachedFile?.name ?: try {
-                                var name = uri.path ?: "Module"
-                                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                                    val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-                                    if (cursor.moveToFirst() && nameIndex >= 0) {
-                                        name = cursor.getString(nameIndex)
-                                    }
+                
+                        val fileName = cachedFile?.name ?: try {
+                            var name = uri.path ?: "Module"
+                            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                                if (cursor.moveToFirst() && nameIndex >= 0) {
+                                    name = cursor.getString(nameIndex)
                                 }
-                                name
-                            } catch (e: Exception) {
-                                "Module"
                             }
-                            installConfirmDialog.showConfirm(
-                                title = context.getString(R.string.apm_install_confirm_title),
-                                content = context.getString(R.string.apm_install_confirm_content, fileName)
-                            )
-                        } else {
-                            navigator.navigate("install_apm/${android.net.Uri.encode(installUri.toString())}/APM")
-                            viewModel.markNeedRefresh()
+                            name
+                        } catch (e: Exception) {
+                            "Module"
                         }
+                
+                        pendingInstallUri = installUri
+                        installConfirmDialog.showConfirm(
+                            title = context.getString(R.string.apm_install_confirm_title),
+                            content = context.getString(R.string.apm_install_confirm_content, fileName)
+                        )
                     }
                 }
 

@@ -184,14 +184,6 @@ fun SettingScreen(navigator: TabNavigator) {
     { paddingValues ->
         val prefs = APApplication.sharedPreferences
         var sliderValue by rememberSaveable { mutableFloatStateOf(PageScaleUtils.currentScale) }
-        // val languages = stringArrayResource(id = R.array.languages)
-        // val languagesValues = stringArrayResource(id = R.array.languages_values)
-        // val currentLocales = AppCompatDelegate.getApplicationLocales()
-        // val currentLanguageTag = if (currentLocales.isEmpty) null
-        // else currentLocales.get(0)?.toLanguageTag()
-        // val langInitialIndex = if (currentLanguageTag == null) 0
-        // else languagesValues.indexOf(currentLanguageTag).let { if (it >= 0) it else 0 }
-        // var langSelectedIndex by remember { mutableStateOf(langInitialIndex) }
         var themeMode by rememberSaveable {
             mutableIntStateOf(prefs.getInt("color_mode", 0))
         }
@@ -206,7 +198,6 @@ fun SettingScreen(navigator: TabNavigator) {
         var enableFloatingBottomBar by rememberSaveable {
             mutableStateOf(VisualConfig.enableFloatingBottomBar)
         }
-        // 移除 list 选项，仅保留 default / classic
         val homeLayoutItems = listOf(
             stringResource(id = R.string.settings_home_layout_default),
             stringResource(id = R.string.settings_home_layout_classic)
@@ -226,7 +217,6 @@ fun SettingScreen(navigator: TabNavigator) {
                 bottom = paddingValues.calculateBottomPadding() + floatingBottomPadding + 12.dp
             )
         ) {
-            // --- Section: Customization ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_customization))
             }
@@ -486,33 +476,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             sliderValue = it
                         }
                     )
-                    // SuperDropdown(
-                        // title = stringResource(R.string.settings_app_language),
-                        // summary = stringResource(R.string.settings_app_language_summary),
-                        // items = languages.toList(),
-                        // selectedIndex = langSelectedIndex,
-                        // startAction = {
-                            // Icon(
-                                // Icons.Rounded.Language,
-                                // null,
-                                // modifier = Modifier.padding(end = 6.dp)
-                            // )
-                        // },
-                        // onSelectedIndexChange = { newIndex ->
-                            // langSelectedIndex = newIndex
-                            // if (newIndex == 0) {
-                                // AppCompatDelegate.setApplicationLocales(
-                                    // LocaleListCompat.getEmptyLocaleList()
-                                // )
-                            // } else {
-                                // AppCompatDelegate.setApplicationLocales(
-                                    // LocaleListCompat.forLanguageTags(
-                                        // languagesValues[newIndex]
-                                    // )
-                                // )
-                            // }
-                        // }
-                    // )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var predictiveBackEnabled by rememberSaveable {
                             mutableStateOf(VisualConfig.predictiveBackGesture)
@@ -542,7 +505,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-            // --- Section: Kernel Patch ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_kernel))
             }
@@ -646,7 +608,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-            // --- Section: Functions ---
             if (kPatchReady && aPatchReady) {
                 item {
                     SmallTitle(text = stringResource(R.string.settings_section_module))
@@ -702,7 +663,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-            // --- Section: Behavior ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_general))
             }
@@ -748,85 +708,27 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     )
-                    var installConfirm by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("apm_install_confirm_enabled", true))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_apm_install_confirm),
-                        summary = stringResource(id = R.string.settings_apm_install_confirm_summary),
-                        checked = installConfirm,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.VerifiedUser,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            prefs.edit { putBoolean("apm_install_confirm_enabled", it) }
-                            installConfirm = it
-                        }
+                    // var installConfirm by rememberSaveable {
+                        // mutableStateOf(prefs.getBoolean("apm_install_confirm_enabled", true))
+                    // }
+                    // SuperSwitch(
+                        // title = stringResource(id = R.string.settings_apm_install_confirm),
+                        // summary = stringResource(id = R.string.settings_apm_install_confirm_summary),
+                        // checked = installConfirm,
+                        // startAction = {
+                            // Icon(
+                                // Icons.Rounded.VerifiedUser,
+                                // null,
+                                // modifier = Modifier.padding(end = 6.dp)
+                            // )
+                        // },
+                        // onCheckedChange = {
+                            // prefs.edit { putBoolean("apm_install_confirm_enabled", it) }
+                            // installConfirm = it
+                        // }
                     )
-                     // var checkUpdate by rememberSaveable {
-                         // mutableStateOf(prefs.getBoolean("check_update", false))
-                     // }
-                    // SuperSwitch(
-                        // title = stringResource(id = R.string.settings_check_update),
-                        // summary = stringResource(id = R.string.settings_check_update_summary),
-                        // checked = checkUpdate,
-                        // startAction = {
-                            // Icon(
-                                // Icons.Rounded.SystemUpdate,
-                                // null,
-                                // modifier = Modifier.padding(end = 6.dp)
-                            // )
-                        // },
-                        // onCheckedChange = { isChecked ->
-                            // checkUpdate = isChecked
-                            // prefs.edit { putBoolean("check_update", isChecked) }
-                        // }
-                    // )
-                    // var blockKernelPatchUpdate by rememberSaveable {
-                        // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
-                    // }
-                    // SuperSwitch(
-                        // title = stringResource(id = R.string.settings_block_kernelpatch_update),
-                        // summary = stringResource(id = R.string.settings_block_kernelpatch_update_summary),
-                        // checked = blockKernelPatchUpdate,
-                        // startAction = {
-                            // Icon(
-                                // Icons.Rounded.Lock,
-                                // null,
-                                // modifier = Modifier.padding(end = 6.dp)
-                            // )
-                        // },
-                        // onCheckedChange = { isChecked ->
-                            // blockKernelPatchUpdate = isChecked
-                            // prefs.edit { putBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, isChecked) }
-                        // }
-                    // )
-                    // var blockAndroidPatchUpdate by rememberSaveable {
-                        // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, false))
-                    // }
-                    // SuperSwitch(
-                        // title = stringResource(id = R.string.settings_block_androidpatch_update),
-                        // summary = stringResource(id = R.string.settings_block_androidpatch_update_summary),
-                        // checked = blockAndroidPatchUpdate,
-                        // startAction = {
-                            // Icon(
-                                // Icons.Rounded.Lock,
-                                // null,
-                                // modifier = Modifier.padding(end = 6.dp)
-                            // )
-                        // },
-                        // onCheckedChange = { isChecked ->
-                            // blockAndroidPatchUpdate = isChecked
-                            // prefs.edit { putBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, isChecked) }
-                        // }
-                    // )
                 }
             }
-            // --- Section: Logs ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_about))
             }
