@@ -665,11 +665,12 @@ fun SettingScreen(navigator: TabNavigator) {
                 )
             }
         }
-    }
-    item {
-        Spacer(Modifier.height(12.dp))
+        item {
+            Spacer(Modifier.height(12.dp))
+        }
     }
 }
+
 @Composable
 fun LogBottomSheet(
     showLogBottomSheet: MutableState<Boolean>,
