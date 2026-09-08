@@ -1,5 +1,4 @@
 package me.bmax.apatch.ui.screen
-
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -41,7 +40,6 @@ import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.automirrored.rounded.Send
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.VerifiedUser
@@ -115,11 +113,9 @@ import top.yukonga.miuix.kmp.extra.SuperDropdown
 import top.yukonga.miuix.kmp.extra.SuperSwitch
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
-
 @Composable
 fun SettingScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
-
     val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
     val kPatchReady = state != APApplication.State.UNKNOWN_STATE
     val aPatchReady =
@@ -141,14 +137,11 @@ fun SettingScreen(navigator: TabNavigator) {
         isMagicMountEnabled = isMagicMountEnabled()
         isHideServiceEnabled = isHideServiceEnabled()
     }
-
     val showResetSuPathDialog = remember { mutableStateOf(false) }
     val showLogBottomSheet = remember { mutableStateOf(false) }
     val showClearKeyDialog = rememberSaveable { mutableStateOf(false) }
     val showScaleDialog = remember { mutableStateOf(false) }
-
     val loadingDialog = rememberLoadingDialog()
-
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val logSavedMessage = stringResource(R.string.log_saved)
@@ -170,7 +163,6 @@ fun SettingScreen(navigator: TabNavigator) {
             }
         }
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -192,7 +184,6 @@ fun SettingScreen(navigator: TabNavigator) {
     { paddingValues ->
         val prefs = APApplication.sharedPreferences
         var sliderValue by rememberSaveable { mutableFloatStateOf(PageScaleUtils.currentScale) }
-
         // val languages = stringArrayResource(id = R.array.languages)
         // val languagesValues = stringArrayResource(id = R.array.languages_values)
         // val currentLocales = AppCompatDelegate.getApplicationLocales()
@@ -201,7 +192,6 @@ fun SettingScreen(navigator: TabNavigator) {
         // val langInitialIndex = if (currentLanguageTag == null) 0
         // else languagesValues.indexOf(currentLanguageTag).let { if (it >= 0) it else 0 }
         // var langSelectedIndex by remember { mutableStateOf(langInitialIndex) }
-
         var themeMode by rememberSaveable {
             mutableIntStateOf(prefs.getInt("color_mode", 0))
         }
@@ -213,11 +203,9 @@ fun SettingScreen(navigator: TabNavigator) {
             stringResource(id = R.string.settings_theme_mode_light),
             stringResource(id = R.string.settings_theme_mode_dark),
         )
-
         var enableFloatingBottomBar by rememberSaveable {
             mutableStateOf(VisualConfig.enableFloatingBottomBar)
         }
-
         // 移除 list 选项，仅保留 default / classic
         val homeLayoutItems = listOf(
             stringResource(id = R.string.settings_home_layout_default),
@@ -226,9 +214,7 @@ fun SettingScreen(navigator: TabNavigator) {
         val homeLayoutValues = listOf("default", "classic")
         var currentHomeLayout by rememberSaveable { mutableStateOf(prefs.getString("home_layout_style", "default") ?: "default") }
         val homeLayoutIndex = homeLayoutValues.indexOf(currentHomeLayout).let { if (it == -1) 0 else it }
-
         val floatingBottomPadding = if (LocalEnableFloatingBottomBar.current) 88.dp else 0.dp
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -263,7 +249,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             themeMode = index
                         }
                     )
-
                     AnimatedVisibility(visible = themeMode in 0..2) {
                         val colorItems = listOf(
                             stringResource(id = R.string.settings_key_color_default),
@@ -324,7 +309,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     var enableBlur by rememberSaveable {
                         mutableStateOf(VisualConfig.enableBlur)
                     }
@@ -344,7 +328,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             enableBlur = VisualConfig.enableBlur
                         }
                     )
-
                     SuperSwitch(
                         title = stringResource(id = R.string.settings_floating_bottom_bar),
                         summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
@@ -361,7 +344,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             enableFloatingBottomBar = it
                         }
                     )
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar
                     ) {
@@ -385,7 +367,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar
                     ) {
@@ -409,7 +390,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     AnimatedVisibility(
                         visible = enableFloatingBottomBar && enableBlur
                     ) {
@@ -433,7 +413,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     SuperDropdown(
                         title = stringResource(id = R.string.settings_home_layout_style),
                         summary = stringResource(id = R.string.settings_home_layout_style_summary),
@@ -451,7 +430,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             currentHomeLayout = homeLayoutValues[index]
                         }
                     )
-
                     SuperArrow(
                         title = stringResource(id = R.string.settings_nav_layout_title),
                         summary = stringResource(id = R.string.settings_nav_layout_summary),
@@ -466,7 +444,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             navigator.navigate("navigation_layout")
                         }
                     )
-
                     SuperArrow(
                         title = stringResource(id = R.string.settings_page_scale),
                         summary = stringResource(id = R.string.settings_page_scale_summary),
@@ -509,7 +486,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             sliderValue = it
                         }
                     )
-
                     // SuperDropdown(
                         // title = stringResource(R.string.settings_app_language),
                         // summary = stringResource(R.string.settings_app_language_summary),
@@ -537,7 +513,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             // }
                         // }
                     // )
-
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var predictiveBackEnabled by rememberSaveable {
                             mutableStateOf(VisualConfig.predictiveBackGesture)
@@ -565,10 +540,8 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                 }
             }
-
             // --- Section: Kernel Patch ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_kernel))
@@ -621,7 +594,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     }
-
                     SuperSwitch(
                         title = stringResource(id = R.string.settings_donot_store_superkey),
                         summary = stringResource(id = R.string.settings_donot_store_superkey_summary),
@@ -638,7 +610,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             APatchKeyHelper.setShouldSkipStoreSuperKey(bSkipStoreSuperKey)
                         }
                     )
-
                     if (kPatchReady && aPatchReady) {
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_global_namespace_mode),
@@ -659,7 +630,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-
                     if (kPatchReady) {
                         SuperArrow(
                             title = stringResource(R.string.setting_reset_su_path),
@@ -676,7 +646,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-
             // --- Section: Functions ---
             if (kPatchReady && aPatchReady) {
                 item {
@@ -700,7 +669,6 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isMagicMountEnabled = it
                             }
                         )
-
                         SuperSwitch(
                             title = stringResource(id = R.string.settings_hide_service),
                             summary = stringResource(id = R.string.settings_hide_service_summary),
@@ -717,7 +685,6 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isHideServiceEnabled = it
                             }
                         )
-
                         SuperArrow(
                             title = stringResource(id = R.string.settings_umount_service),
                             summary = stringResource(id = R.string.settings_umount_service_summary),
@@ -735,7 +702,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     }
                 }
             }
-
             // --- Section: Behavior ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_general))
@@ -761,27 +727,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             stayOnPage = it
                         }
                     )
-
-                    var apmSortEnabled by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("apm_sort_enabled", true))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_apm_sorting),
-                        summary = stringResource(id = R.string.settings_apm_sorting_summary),
-                        checked = apmSortEnabled,
-                        startAction = {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Sort,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            prefs.edit { putBoolean("apm_sort_enabled", it) }
-                            apmSortEnabled = it
-                        }
-                    )
-
                     var enableWebDebugging by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                     }
@@ -803,7 +748,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     )
-
                     var installConfirm by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("apm_install_confirm_enabled", true))
                     }
@@ -823,7 +767,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             installConfirm = it
                         }
                     )
-
                      // var checkUpdate by rememberSaveable {
                          // mutableStateOf(prefs.getBoolean("check_update", false))
                      // }
@@ -843,7 +786,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             // prefs.edit { putBoolean("check_update", isChecked) }
                         // }
                     // )
-
                     // var blockKernelPatchUpdate by rememberSaveable {
                         // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, false))
                     // }
@@ -863,7 +805,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             // prefs.edit { putBoolean(APApplication.PREF_BLOCK_KERNELPATCH_UPDATE, isChecked) }
                         // }
                     // )
-
                     // var blockAndroidPatchUpdate by rememberSaveable {
                         // mutableStateOf(prefs.getBoolean(APApplication.PREF_BLOCK_ANDROIDPATCH_UPDATE, false))
                     // }
@@ -885,7 +826,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     // )
                 }
             }
-
             // --- Section: Logs ---
             item {
                 SmallTitle(text = stringResource(R.string.settings_section_about))
@@ -908,14 +848,12 @@ fun SettingScreen(navigator: TabNavigator) {
                     )
                 }
             }
-
             item {
                 Spacer(Modifier.height(12.dp))
             }
         }
     }
 }
-
 @Composable
 fun LogBottomSheet(
     showLogBottomSheet: MutableState<Boolean>,
@@ -951,19 +889,16 @@ fun LogBottomSheet(
                                 getBugreportFile(context)
                             }
                         }
-
                         val uri: Uri = FileProvider.getUriForFile(
                             context,
                             "${BuildConfig.APPLICATION_ID}.fileprovider",
                             bugreport
                         )
-
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             putExtra(Intent.EXTRA_STREAM, uri)
                             setDataAndType(uri, "application/gzip")
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-
                         context.startActivity(
                             Intent.createChooser(
                                 shareIntent,
@@ -977,16 +912,13 @@ fun LogBottomSheet(
         }
     }
 }
-
 @Composable
 fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
     val context = LocalContext.current
     var suPath by remember { mutableStateOf(Natives.suPath()) }
-
     val suPathChecked: (path: String) -> Boolean = {
         it.startsWith("/") && it.trim().length > 1
     }
-
     SuperDialog(
         show = showDialog.value,
         title = stringResource(R.string.setting_reset_su_path),
@@ -997,22 +929,17 @@ fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
             onValueChange = { suPath = it },
             label = stringResource(R.string.setting_reset_su_new_path),
         )
-
         Spacer(Modifier.height(12.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-
             TextButton(
                 stringResource(id = android.R.string.cancel),
                 onClick = { showDialog.value = false },
                 modifier = Modifier.weight(1f),
             )
-
             Spacer(Modifier.width(20.dp))
-
             TextButton(
                 stringResource(id = android.R.string.ok),
                 onClick = {
