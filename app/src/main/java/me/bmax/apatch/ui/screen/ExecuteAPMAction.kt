@@ -78,11 +78,6 @@ fun ExecuteAPMActionScreen(navigator: TabNavigator, moduleId: String) {
                 actionResult = it
             }
         }
-        if (actionResult) {
-            if (!APApplication.sharedPreferences.getBoolean("apm_action_stay_on_page", true)) {
-                navigator.popBackStack()
-            }
-        }
     }
 
     Scaffold(

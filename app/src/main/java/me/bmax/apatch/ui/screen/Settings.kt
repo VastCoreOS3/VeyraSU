@@ -668,25 +668,6 @@ fun SettingScreen(navigator: TabNavigator) {
             }
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    var stayOnPage by rememberSaveable {
-                        mutableStateOf(prefs.getBoolean("apm_action_stay_on_page", true))
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_apm_stay_on_page),
-                        summary = stringResource(id = R.string.settings_apm_stay_on_page_summary),
-                        checked = stayOnPage,
-                        startAction = {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.OpenInNew,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            prefs.edit { putBoolean("apm_action_stay_on_page", it) }
-                            stayOnPage = it
-                        }
-                    )
                     var enableWebDebugging by rememberSaveable {
                         mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                     }
