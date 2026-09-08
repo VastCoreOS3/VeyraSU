@@ -111,7 +111,7 @@ object TabRoutes {
 
     const val SETTINGS = "settings"
     const val NAVIGATION_LAYOUT = "navigation_layout"
-    const val UMOUNT_CONFIG = "umount_config"
+    // const val UMOUNT_CONFIG = "umount_config"
 }
 
 @Composable
@@ -293,9 +293,9 @@ fun SettingsTabNavHost(modifier: Modifier = Modifier) {
         composable(TabRoutes.NAVIGATION_LAYOUT) {
             NavigationLayoutScreen(navigator)
         }
-        composable(TabRoutes.UMOUNT_CONFIG) {
-            UmountConfigScreen(navigator)
-        }
+        // composable(TabRoutes.UMOUNT_CONFIG) {
+            // UmountConfigScreen(navigator)
+        // }
         composable(TabRoutes.ABOUT) {
             AboutScreen(navigator)
         }

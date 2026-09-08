@@ -667,20 +667,20 @@ fun SettingScreen(navigator: TabNavigator) {
                                 isHideServiceEnabled = it
                             }
                         )
-                        SuperArrow(
-                            title = stringResource(id = R.string.settings_umount_service),
-                            summary = stringResource(id = R.string.settings_umount_service_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Eject,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onClick = {
-                                navigator.navigate("umount_config")
-                            }
-                        )
+                        // SuperArrow(
+                            // title = stringResource(id = R.string.settings_umount_service),
+                            // summary = stringResource(id = R.string.settings_umount_service_summary),
+                            // startAction = {
+                                // Icon(
+                                    // Icons.Rounded.Eject,
+                                    // null,
+                                    // modifier = Modifier.padding(end = 6.dp)
+                                // )
+                            // },
+                            // onClick = {
+                                // navigator.navigate("umount_config")
+                            // }
+                        // )
                     }
                 }
             }
