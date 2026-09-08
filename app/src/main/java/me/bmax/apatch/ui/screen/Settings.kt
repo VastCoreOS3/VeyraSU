@@ -708,25 +708,6 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         }
                     )
-                    // var installConfirm by rememberSaveable {
-                        // mutableStateOf(prefs.getBoolean("apm_install_confirm_enabled", true))
-                    // }
-                    // SuperSwitch(
-                        // title = stringResource(id = R.string.settings_apm_install_confirm),
-                        // summary = stringResource(id = R.string.settings_apm_install_confirm_summary),
-                        // checked = installConfirm,
-                        // startAction = {
-                            // Icon(
-                                // Icons.Rounded.VerifiedUser,
-                                // null,
-                                // modifier = Modifier.padding(end = 6.dp)
-                            // )
-                        // },
-                        // onCheckedChange = {
-                            // prefs.edit { putBoolean("apm_install_confirm_enabled", it) }
-                            // installConfirm = it
-                        // }
-                    )
                 }
             }
             item {
