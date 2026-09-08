@@ -40,10 +40,6 @@
 
     <!-- <string name="settings_check_update">Check for updates</string> -->
     <!-- <string name="settings_check_update_summary">Automatically check for updates when opening the app</string> -->
-    <string name="settings_block_kernelpatch_update">Block KernelPatch Update</string>
-    <string name="settings_block_kernelpatch_update_summary">Do not show KernelPatch update notifications</string>
-    <string name="settings_block_androidpatch_update">Block System Patch Update</string>
-    <string name="settings_block_androidpatch_update_summary">Do not show system patch (APD) update notifications</string>
     <string name="update_available_title">Update Available</string>
     <string name="update_available_message">A new version of VeyraSU is available. Update now?</string>
     <string name="update_close">Later</string>
