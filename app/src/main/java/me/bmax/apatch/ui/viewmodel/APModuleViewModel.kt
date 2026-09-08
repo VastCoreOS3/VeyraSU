@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.bmax.apatch.APApplication
 import me.bmax.apatch.util.HanziToPinyin
 import me.bmax.apatch.apApp
 import me.bmax.apatch.util.listModules
@@ -65,25 +64,15 @@ class APModuleViewModel : ViewModel() {
 
     var search by mutableStateOf("")
 
-    var isApmSortEnabled by mutableStateOf(APApplication.sharedPreferences.getBoolean("apm_sort_enabled", true))
-
-    fun setSortEnabled(enabled: Boolean) {
-        isApmSortEnabled = enabled
-        APApplication.sharedPreferences.edit().putBoolean("apm_sort_enabled", enabled).apply()
-    }
-
     val moduleList by derivedStateOf {
-        val comparator = compareBy(Collator.getInstance(Locale.getDefault()), ModuleInfo::id)
-        val finalComparator = if (isApmSortEnabled) {
-            compareByDescending<ModuleInfo> { it.isMetamodule }
-                .thenByDescending { it.isZygisk }
-                .thenByDescending { it.isLSPosed }
-                .thenByDescending { it.hasWebUi }
-                .thenByDescending { it.hasActionScript }
-                .thenBy(Collator.getInstance(Locale.getDefault())) { it.id }
-        } else {
-            comparator
-        }
+        // 固定使用原开启排序的规则，不再提供开关控制
+        val finalComparator = compareByDescending<ModuleInfo> { it.isMetamodule }
+            .thenByDescending { it.isZygisk }
+            .thenByDescending { it.isLSPosed }
+            .thenByDescending { it.hasWebUi }
+            .thenByDescending { it.hasActionScript }
+            .thenBy(Collator.getInstance(Locale.getDefault())) { it.id }
+
         modules.filter {
             it.id.contains(search, true) || it.name.contains(search, true) || HanziToPinyin.getInstance()
                 .toPinyinString(it.name).contains(search, true)
