@@ -163,7 +163,6 @@ fun SettingScreen(navigator: TabNavigator) {
             }
         }
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -179,6 +178,15 @@ fun SettingScreen(navigator: TabNavigator) {
                 exportBugreportLauncher,
                 loadingDialog,
                 context
+            )
+            // 修复：ScaleDialog移到popupHost，不在LazyColumn内部
+            ScaleDialog(
+                showDialog = showScaleDialog.value,
+                onDismissRequest = { showScaleDialog.value = false },
+                scaleState = { PageScaleUtils.currentScale },
+                onScaleChange = {
+                    PageScaleUtils.setScale(it)
+                }
             )
         }
     ) { paddingValues ->
@@ -445,7 +453,7 @@ fun SettingScreen(navigator: TabNavigator) {
                         color = colorScheme.onSurfaceVariantActions
                     )
                 },
-                onClick = { showScaleDialog.value = !showScaleDialog.value },
+                onClick = { showScaleDialog.value = true },
                 holdDownState = showScaleDialog.value,
                 bottomAction = {
                     Slider(
@@ -460,15 +468,6 @@ fun SettingScreen(navigator: TabNavigator) {
                         magnetThreshold = 0.01f,
                         hapticEffect = SliderDefaults.SliderHapticEffect.Step,
                     )
-                }
-            )
-            ScaleDialog(
-                showDialog = showScaleDialog.value,
-                onDismissRequest = { showScaleDialog.value = false },
-                scaleState = { PageScaleUtils.currentScale },
-                onScaleChange = {
-                    PageScaleUtils.setScale(it)
-                    sliderValue = it
                 }
             )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -594,7 +593,6 @@ fun SettingScreen(navigator: TabNavigator) {
                     onClick = { showResetSuPathDialog.value = true }
                 )
             }
-
             if (kPatchReady && aPatchReady) {
                 var enableWebDebugging by rememberSaveable {
                     mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
@@ -668,7 +666,23 @@ fun SettingScreen(navigator: TabNavigator) {
                 Spacer(Modifier.height(12.dp))
             }
         }
-    } // ✅【关键修复】补回Scaffold内容lambda闭合大括号！
+    }
+}
+
+@Composable
+fun ScaleDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    scaleState: () -> Float,
+    onScaleChange: (Float) -> Unit
+) {
+    SuperDialog(
+        show = showDialog,
+        onDismissRequest = onDismissRequest,
+        title = stringResource(R.string.settings_page_scale)
+    ) {
+        // 这里写ScaleDialog内部UI
+    }
 }
 
 @Composable
