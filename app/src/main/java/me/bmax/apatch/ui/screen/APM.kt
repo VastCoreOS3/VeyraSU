@@ -172,7 +172,6 @@ fun APModuleScreen(navigator: TabNavigator) {
     val viewModel = viewModel<APModuleViewModel>()
 
     LaunchedEffect(Unit) {
-        viewModel.isApmSortEnabled = APApplication.sharedPreferences.getBoolean("apm_sort_enabled", true)
         viewModel.fetchModuleList()
     }
     val webUILauncher = rememberLauncherForActivityResult(
