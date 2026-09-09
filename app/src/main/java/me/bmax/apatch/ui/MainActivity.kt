@@ -260,7 +260,6 @@ class MainActivity : AppCompatActivity() {
                         LocalVisibleDestinations provides visibleDestinations,
                     ) {
                     val loadingDialog = rememberLoadingDialog()
-                    var showUpdateDialog by remember { mutableStateOf(false) }
                     
                     }
 
