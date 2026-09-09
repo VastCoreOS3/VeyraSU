@@ -3,13 +3,18 @@ package me.bmax.apatch.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.content.SharedPreferences
 import android.view.WindowManager
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -19,49 +24,28 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.Crossfade
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Apps
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -97,10 +81,10 @@ import me.bmax.apatch.ui.screen.ExternalNavEvent
 import me.bmax.apatch.ui.screen.LocalExternalNavEvent
 import me.bmax.apatch.ui.screen.MainScreen
 import me.bmax.apatch.ui.theme.APatchTheme
+import me.bmax.apatch.ui.theme.LocalBottomBarVisible
 import me.bmax.apatch.ui.theme.LocalEnableBlur
 import me.bmax.apatch.ui.theme.LocalEnableFloatingBottomBar
 import me.bmax.apatch.ui.theme.LocalEnableLiquidGlass
-import me.bmax.apatch.ui.theme.LocalBottomBarVisible
 import me.bmax.apatch.ui.theme.LocalMainPagerState
 import me.bmax.apatch.ui.theme.LocalVisibleDestinations
 import me.bmax.apatch.ui.theme.migrateColorModeIfNeeded
@@ -120,21 +104,17 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
-
     private var isLoading = true
     private var pendingShortcutModuleId: String? = null
     private val installUriChannel = Channel<Uri>(Channel.BUFFERED)
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         installSplashScreen().setKeepOnScreenCondition { isLoading }
-
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
-
         super.onCreate(savedInstanceState)
 
         pendingShortcutModuleId = intent.getStringExtra("module_id")?.takeIf {
@@ -142,11 +122,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         me.bmax.apatch.util.PageScaleUtils.load(this)
-
-        // Migrate color mode from 0.7.x to 0.8.x ordering
         migrateColorModeIfNeeded(this)
-
-        // Disables automatic window adjustment when the soft keyboard appears
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
         val uri: Uri? = intent.data ?: run {
@@ -157,9 +133,7 @@ class MainActivity : AppCompatActivity() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM)
                 }
-            } else {
-                null
-            }
+            } else null
         }
 
         val shortcutType = intent.getStringExtra("shortcut_type")
@@ -167,25 +141,23 @@ class MainActivity : AppCompatActivity() {
         val isFromShortcut = shortcutType == "module_action" && !shortcutModuleId.isNullOrEmpty()
 
         setContent {
-            val context = LocalActivity.current ?: this
-            val prefs = context.getSharedPreferences("config", MODE_PRIVATE)
-            var colorMode by remember { mutableIntStateOf(prefs.getInt("color_mode", 0)) }
-            var keyColorInt by remember { mutableIntStateOf(VisualConfig.keyColor) }
-            val keyColor = remember(keyColorInt) {
-                if (keyColorInt == 0) null else Color(keyColorInt)
-            }
+            val activityContext = LocalActivity.current ?: this@MainActivity
+            val configPrefs = activityContext.getSharedPreferences("config", MODE_PRIVATE)
 
-            // Visual effect config
+            var colorMode by remember { mutableIntStateOf(configPrefs.getInt("color_mode", 0)) }
+            var keyColorInt by remember { mutableIntStateOf(VisualConfig.keyColor) }
+            val keyColor = remember(keyColorInt) { if (keyColorInt == 0) null else Color(keyColorInt) }
+
             var enableBlur by remember { mutableStateOf(VisualConfig.enableBlur) }
             var enableFloatingBottomBar by remember { mutableStateOf(VisualConfig.enableFloatingBottomBar) }
             var floatingBottomBarAutoHide by remember { mutableStateOf(VisualConfig.floatingBottomBarAutoHide) }
             var floatingBottomBarScrollHide by remember { mutableStateOf(VisualConfig.floatingBottomBarScrollHide) }
             var enableLiquidGlass by remember { mutableStateOf(VisualConfig.enableLiquidGlass) }
 
-            DisposableEffect(prefs) {
+            DisposableEffect(configPrefs) {
                 val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                     when (key) {
-                        "color_mode" -> colorMode = prefs.getInt("color_mode", 0)
+                        "color_mode" -> colorMode = configPrefs.getInt("color_mode", 0)
                         "key_color" -> keyColorInt = VisualConfig.keyColor
                         "enable_blur" -> enableBlur = VisualConfig.enableBlur
                         "enable_floating_bottom_bar" -> enableFloatingBottomBar = VisualConfig.enableFloatingBottomBar
@@ -194,80 +166,76 @@ class MainActivity : AppCompatActivity() {
                         "enable_liquid_glass" -> enableLiquidGlass = VisualConfig.enableLiquidGlass
                     }
                 }
-                prefs.registerOnSharedPreferenceChangeListener(listener)
-                onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+                configPrefs.registerOnSharedPreferenceChangeListener(listener)
+                onDispose { configPrefs.unregisterOnSharedPreferenceChangeListener(listener) }
             }
 
             APatchTheme(colorMode = colorMode, keyColor = keyColor) {
+                val apState by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
+                val kPatchReady = apState != APApplication.State.UNKNOWN_STATE
+                val aPatchReady = apState == APApplication.State.ANDROIDPATCH_INSTALLED
+                val appPrefs = APApplication.sharedPreferences
 
-                    val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-                    val kPatchReady = state != APApplication.State.UNKNOWN_STATE
-                    val aPatchReady = state == APApplication.State.ANDROIDPATCH_INSTALLED
-                    val prefs = APApplication.sharedPreferences
-                    var showNavApm by remember { mutableStateOf(prefs.getBoolean("show_nav_apm", true)) }
-                    var showNavKpm by remember { mutableStateOf(prefs.getBoolean("show_nav_kpm", false)) }
-                    var showNavSuperUser by remember { mutableStateOf(prefs.getBoolean("show_nav_superuser", true)) }
+                var showNavApm by remember { mutableStateOf(appPrefs.getBoolean("show_nav_apm", true)) }
+                var showNavKpm by remember { mutableStateOf(appPrefs.getBoolean("show_nav_kpm", false)) }
+                var showNavSuperUser by remember { mutableStateOf(appPrefs.getBoolean("show_nav_superuser", true)) }
 
-                    DisposableEffect(Unit) {
-                        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
-                            when (key) {
-                                "show_nav_apm" -> showNavApm = sharedPrefs.getBoolean(key, true)
-                                "show_nav_kpm" -> showNavKpm = sharedPrefs.getBoolean(key, false)
-                                "show_nav_superuser" -> showNavSuperUser = sharedPrefs.getBoolean(key, true)
-                            }
+                DisposableEffect(appPrefs) {
+                    val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+                        when (key) {
+                            "show_nav_apm" -> showNavApm = sharedPrefs.getBoolean(key, true)
+                            "show_nav_kpm" -> showNavKpm = sharedPrefs.getBoolean(key, false)
+                            "show_nav_superuser" -> showNavSuperUser = sharedPrefs.getBoolean(key, true)
                         }
-                        prefs.registerOnSharedPreferenceChangeListener(listener)
-                        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
                     }
+                    appPrefs.registerOnSharedPreferenceChangeListener(listener)
+                    onDispose { appPrefs.unregisterOnSharedPreferenceChangeListener(listener) }
+                }
 
-                    val visibleDestinations = BottomBarDestination.entries
-                        .filter { d ->
-                            !(d.kPatchRequired && !kPatchReady) &&
-                                    !(d.aPatchRequired && !aPatchReady) &&
-                            when (d) {
-                                BottomBarDestination.AModule -> showNavApm
-                                BottomBarDestination.KModule -> showNavKpm
-                                BottomBarDestination.SuperUser -> showNavSuperUser
-                                else -> true
-                            }
+                val visibleDestinations = remember(apState, showNavApm, showNavKpm, showNavSuperUser) {
+                    BottomBarDestination.entries.filter { d ->
+                        !(d.kPatchRequired && !kPatchReady) &&
+                        !(d.aPatchRequired && !aPatchReady) &&
+                        when (d) {
+                            BottomBarDestination.AModule -> showNavApm
+                            BottomBarDestination.KModule -> showNavKpm
+                            BottomBarDestination.SuperUser -> showNavSuperUser
+                            else -> true
                         }
-
-                    val bottomBarVisibleState = remember { mutableStateOf(true) }
-                    val pageScale = me.bmax.apatch.util.PageScaleUtils.currentScale
-                    val systemDensity = LocalDensity.current
-                    val scaledDensity = remember(systemDensity, pageScale) {
-                        Density(systemDensity.density * pageScale, systemDensity.fontScale)
                     }
+                }
 
-                    val pagerState = rememberPagerState(
-                        initialPage = 0,
-                        pageCount = { visibleDestinations.size }
-                    )
-                    val coroutineScope = rememberCoroutineScope()
-                    val mainPagerState = remember(pagerState, coroutineScope, scaledDensity) {
-                        MainPagerState(pagerState, coroutineScope, scaledDensity)
-                    }
+                val bottomBarVisibleState = remember { mutableStateOf(true) }
+                val pageScale = me.bmax.apatch.util.PageScaleUtils.currentScale
+                val systemDensity = LocalDensity.current
+                val scaledDensity = remember(systemDensity, pageScale) {
+                    Density(systemDensity.density * pageScale, systemDensity.fontScale)
+                }
 
-                    CompositionLocalProvider(
+                val pagerState = rememberPagerState(
+                    initialPage = 0,
+                    pageCount = { visibleDestinations.size }
+                )
+                val coroutineScope = rememberCoroutineScope()
+                val mainPagerState = remember(pagerState, coroutineScope, scaledDensity) {
+                    MainPagerState(pagerState, coroutineScope, scaledDensity)
+                }
+
+                CompositionLocalProvider(
                     LocalDensity provides scaledDensity,
                     LocalEnableBlur provides enableBlur,
                     LocalEnableFloatingBottomBar provides enableFloatingBottomBar,
                     LocalEnableLiquidGlass provides enableLiquidGlass,
+                    LocalBottomBarVisible provides bottomBarVisibleState,
+                    LocalMainPagerState provides mainPagerState,
+                    LocalVisibleDestinations provides visibleDestinations,
                 ) {
-                    CompositionLocalProvider(
-                        LocalBottomBarVisible provides bottomBarVisibleState,
-                        LocalMainPagerState provides mainPagerState,
-                        LocalVisibleDestinations provides visibleDestinations,
-                    ) {
                     val loadingDialog = rememberLoadingDialog()
-                    
-                    }
-
 
                     var externalNavEvent by remember { mutableStateOf<ExternalNavEvent?>(null) }
                     var navEventConsumed by remember { mutableStateOf(false) }
-
                     val currentUri by rememberUpdatedState(uri)
+
                     LaunchedEffect(currentUri) {
                         currentUri?.let { navUri ->
                             externalNavEvent = ExternalNavEvent.InstallApk(navUri)
@@ -280,8 +248,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    if (isFromShortcut) {
-                        LaunchedEffect(Unit) {
+                    LaunchedEffect(isFromShortcut, shortcutModuleId) {
+                        if (isFromShortcut) {
                             externalNavEvent = ExternalNavEvent.ExecuteAction(shortcutModuleId)
                             pendingShortcutModuleId = null
                         }
@@ -290,19 +258,18 @@ class MainActivity : AppCompatActivity() {
                     val pendingShortcut by rememberUpdatedState(pendingShortcutModuleId)
                     LaunchedEffect(pendingShortcut) {
                         val shortcutId = pendingShortcut
-                        if (shortcutId != null && !isFromShortcut) {
+                        if (!shortcutId.isNullOrEmpty() && !isFromShortcut) {
                             externalNavEvent = ExternalNavEvent.ExecuteAction(shortcutId)
                             pendingShortcutModuleId = null
                         }
                     }
 
                     val showBottomBarRoute = true
-
                     var isBottomBarVisible by remember { mutableStateOf(true) }
-                    var autoHideKey by remember { mutableStateOf(0) }
+                    var autoHideKey by remember { mutableIntStateOf(0) }
                     val isScrollingDown = remember { mutableStateOf(false) }
-                    val scrollOffset = remember { mutableStateOf(0f) }
-                    val previousScrollOffset = remember { mutableStateOf(0f) }
+                    val scrollOffset = remember { mutableFloatStateOf(0f) }
+                    val previousScrollOffset = remember { mutableFloatStateOf(0f) }
 
                     fun resetBottomBarAutoHide() {
                         isBottomBarVisible = true
@@ -313,21 +280,21 @@ class MainActivity : AppCompatActivity() {
                         object : NestedScrollConnection {
                             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                                 val delta = available.y
-                                if (delta != 0f) {
-                                    resetBottomBarAutoHide()
-                                }
-                                val newOffset = scrollOffset.value + delta
-                                scrollOffset.value = newOffset
-                                val scrollDelta = previousScrollOffset.value - newOffset
+                                if (delta != 0f) resetBottomBarAutoHide()
+
+                                val newOffset = scrollOffset.floatValue + delta
+                                scrollOffset.floatValue = newOffset
+                                val scrollDelta = previousScrollOffset.floatValue - newOffset
+
                                 if (abs(scrollDelta) > 50f) {
                                     isScrollingDown.value = scrollDelta > 0
-                                    previousScrollOffset.value = newOffset
+                                    previousScrollOffset.floatValue = newOffset
                                 }
                                 return Offset.Zero
                             }
 
                             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                                previousScrollOffset.value = scrollOffset.value
+                                previousScrollOffset.floatValue = scrollOffset.floatValue
                                 return super.onPostFling(consumed, available)
                             }
                         }
@@ -345,10 +312,8 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         showBottomBarRoute
                     }
-
                     bottomBarVisibleState.value = showBottomBar
 
-                    // Haze state for standard blur mode
                     val hazeState = remember(enableBlur, enableFloatingBottomBar) {
                         try {
                             if (enableBlur || enableFloatingBottomBar) HazeState() else null
@@ -358,22 +323,23 @@ class MainActivity : AppCompatActivity() {
                             null
                         }
                     }
+
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
                             backgroundColor = MiuixTheme.colorScheme.surface,
                             tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.4f))
                         )
-                    } else {
-                        HazeStyle.Unspecified
-                    }
+                    } else HazeStyle.Unspecified
 
-                    val backdrop = if (enableFloatingBottomBar && hazeState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val surfaceColorState = rememberUpdatedState(MiuixTheme.colorScheme.surface)
-                        rememberLayerBackdrop {
-                            drawRect(surfaceColorState.value)
-                            drawContent()
-                        }
-                    } else null
+                    val backdrop = remember(enableFloatingBottomBar, hazeState) {
+                        if (enableFloatingBottomBar && hazeState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            val surfaceColorState = rememberUpdatedState(MiuixTheme.colorScheme.surface)
+                            rememberLayerBackdrop {
+                                drawRect(surfaceColorState.value)
+                                drawContent()
+                            }
+                        } else null
+                    }
 
                     LaunchedEffect(enableBlur, enableFloatingBottomBar, enableLiquidGlass) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
@@ -395,18 +361,20 @@ class MainActivity : AppCompatActivity() {
                                 Box(modifier = Modifier.offset(y = animatedOffsetY)) {
                                     BottomBar(
                                         mainPagerState = mainPagerState,
+                                        visibleDestinations = visibleDestinations,
                                         enableBlur = enableBlur,
                                         enableFloatingBottomBar = true,
                                         enableLiquidGlass = enableLiquidGlass,
                                         hazeState = hazeState,
                                         hazeStyle = hazeStyle,
                                         backdrop = backdrop,
-                                        onUserInteraction = { resetBottomBarAutoHide() },
+                                        onUserInteraction = ::resetBottomBarAutoHide,
                                     )
                                 }
                             } else if (showBottomBar) {
                                 BottomBar(
                                     mainPagerState = mainPagerState,
+                                    visibleDestinations = visibleDestinations,
                                     enableBlur = enableBlur,
                                     enableFloatingBottomBar = false,
                                     enableLiquidGlass = false,
@@ -420,35 +388,26 @@ class MainActivity : AppCompatActivity() {
                         CompositionLocalProvider(
                             LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
                         ) {
-                        MainScreen(
-                            modifier = Modifier
-                                .then(
-                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
-                                    else Modifier
-                                )
-                                .padding(bottom = if (showBottomBar) {
-                                    if (enableFloatingBottomBar) 0.dp else 65.dp
-                                } else 0.dp)
-                                .then(
-                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
-                                    else Modifier
-                                )
-                                .then(
-                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
-                                        Modifier.layerBackdrop(backdrop)
-                                    else Modifier
-                                ),
-                            onExternalNavConsumed = { navEventConsumed = true },
-                        )
-                        } // end LocalExternalNavEvent CompositionLocalProvider
-                    } // end Scaffold content
+                            MainScreen(
+                                modifier = Modifier
+                                    .then(if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection) else Modifier)
+                                    .padding(bottom = if (showBottomBar) {
+                                        if (enableFloatingBottomBar) 0.dp else 65.dp
+                                    } else 0.dp)
+                                    .then(if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState) else Modifier)
+                                    .then(
+                                        if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                            Modifier.layerBackdrop(backdrop)
+                                        else Modifier
+                                    ),
+                                onExternalNavConsumed = { navEventConsumed = true },
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
-                    } // end CompositionLocalProvider
-                } // end outer CompositionLocalProvider
-            } // end APatchTheme
-        } // end setContent
-
-        // Initialize Coil
         val iconSize = resources.getDimensionPixelSize(android.R.dimen.app_icon_size)
         Coil.setImageLoader(
             ImageLoader.Builder(this)
@@ -458,7 +417,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 .build()
         )
-
         isLoading = false
     }
 
@@ -470,6 +428,7 @@ class MainActivity : AppCompatActivity() {
         if (shortcutType == "module_action" && !moduleId.isNullOrEmpty()) {
             pendingShortcutModuleId = moduleId
         }
+
         val zipUri: Uri? = intent.data ?: run {
             if (intent.action == android.content.Intent.ACTION_SEND) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -478,9 +437,7 @@ class MainActivity : AppCompatActivity() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(android.content.Intent.EXTRA_STREAM)
                 }
-            } else {
-                null
-            }
+            } else null
         }
         if (zipUri != null && shortcutType == null) {
             installUriChannel.trySend(zipUri)
@@ -491,6 +448,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun BottomBar(
     mainPagerState: MainPagerState,
+    visibleDestinations: List<BottomBarDestination>,
     enableBlur: Boolean,
     enableFloatingBottomBar: Boolean,
     enableLiquidGlass: Boolean,
@@ -499,57 +457,17 @@ private fun BottomBar(
     backdrop: com.kyant.backdrop.Backdrop?,
     onUserInteraction: (() -> Unit)? = null,
 ) {
-    val state by APApplication.apStateLiveData.observeAsState(APApplication.State.UNKNOWN_STATE)
-
-    val prefs = APApplication.sharedPreferences
-    var showNavApm by remember { mutableStateOf(prefs.getBoolean("show_nav_apm", true)) }
-    var showNavKpm by remember { mutableStateOf(prefs.getBoolean("show_nav_kpm", false)) }
-    var showNavSuperUser by remember { mutableStateOf(prefs.getBoolean("show_nav_superuser", true)) }
-
-    DisposableEffect(Unit) {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
-            when (key) {
-                "show_nav_apm" -> showNavApm = sharedPrefs.getBoolean(key, true)
-                "show_nav_kpm" -> showNavKpm = sharedPrefs.getBoolean(key, false)
-                "show_nav_superuser" -> showNavSuperUser = sharedPrefs.getBoolean(key, true)
-            }
-        }
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        onDispose {
-            prefs.unregisterOnSharedPreferenceChangeListener(listener)
-        }
-    }
-
-    val kPatchReady = state != APApplication.State.UNKNOWN_STATE
-    val aPatchReady = state == APApplication.State.ANDROIDPATCH_INSTALLED
-
-    val visibleDestinations = BottomBarDestination.entries
-        .filter { d ->
-            !(d.kPatchRequired && !kPatchReady) &&
-                    !(d.aPatchRequired && !aPatchReady) &&
-            when (d) {
-                BottomBarDestination.AModule -> showNavApm
-                BottomBarDestination.KModule -> showNavKpm
-                BottomBarDestination.SuperUser -> showNavSuperUser
-                else -> true
-            }
-        }
-
     Crossfade(
-        targetState = state,
+        targetState = visibleDestinations,
         label = "BottomBarStateCrossfade"
-    ) { state ->
-        val visibleDestinations = visibleDestinations
-
-        val selectedIndex = mainPagerState.selectedPage.coerceIn(0, (visibleDestinations.size - 1).coerceAtLeast(0))
-
-        val navigateToPage: (index: Int) -> Unit = { index ->
+    ) { dests ->
+        val safeIndex = mainPagerState.selectedPage.coerceIn(0, (dests.size - 1).coerceAtLeast(0))
+        val navigateToPage: (Int) -> Unit = { index ->
             onUserInteraction?.invoke()
             mainPagerState.animateToPage(index)
         }
 
         if (enableFloatingBottomBar && backdrop != null) {
-            val safeBackdrop = backdrop
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -567,17 +485,17 @@ private fun BottomBar(
                             bottom = 12.dp + WindowInsets.navigationBars
                                 .asPaddingValues().calculateBottomPadding()
                         ),
-                    selectedIndex = { selectedIndex },
+                    selectedIndex = { safeIndex },
                     onSelected = navigateToPage,
-                    backdrop = safeBackdrop,
-                    tabsCount = visibleDestinations.size,
+                    backdrop = backdrop,
+                    tabsCount = dests.size,
                     isBackdropBlurEnabled = enableBlur,
                     isLiquidGlassEnabled = enableBlur && enableLiquidGlass,
                 ) {
-                    visibleDestinations.forEachIndexed { _, destination ->
+                    dests.forEachIndexed { _, destination ->
                         FloatingBottomBarItem(
                             onClick = {
-                                val idx = visibleDestinations.indexOf(destination)
+                                val idx = dests.indexOf(destination)
                                 if (idx >= 0) navigateToPage(idx)
                             },
                             modifier = Modifier.defaultMinSize(minWidth = 76.dp)
@@ -607,11 +525,11 @@ private fun BottomBar(
                 } else Modifier,
                 color = if (enableBlur) Color.Transparent else MiuixTheme.colorScheme.surface,
                 content = {
-                    visibleDestinations.forEachIndexed { index, destination ->
+                    dests.forEachIndexed { index, destination ->
                         NavigationBarItem(
-                            icon = if (index == selectedIndex) destination.iconSelected else destination.iconNotSelected,
+                            icon = if (index == safeIndex) destination.iconSelected else destination.iconNotSelected,
                             label = stringResource(destination.label),
-                            selected = index == selectedIndex,
+                            selected = index == safeIndex,
                             onClick = { navigateToPage(index) }
                         )
                     }
