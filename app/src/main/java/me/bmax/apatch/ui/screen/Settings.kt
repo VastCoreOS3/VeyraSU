@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Dock
-import androidx.compose.material.icons.rounded.Eject
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.HideImage
 import androidx.compose.material.icons.rounded.Language
@@ -68,8 +66,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
-// import androidx.core.os.LocaleListCompat
-import me.bmax.apatch.ui.screen.TabNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -96,11 +92,9 @@ import me.bmax.apatch.util.VisualConfig
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
-import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.SliderDefaults
 import top.yukonga.miuix.kmp.basic.Text
@@ -113,6 +107,7 @@ import top.yukonga.miuix.kmp.extra.SuperDropdown
 import top.yukonga.miuix.kmp.extra.SuperSwitch
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
+
 @Composable
 fun SettingScreen(navigator: TabNavigator) {
     val scrollBehavior = MiuixScrollBehavior()
@@ -217,16 +212,74 @@ fun SettingScreen(navigator: TabNavigator) {
                 bottom = paddingValues.calculateBottomPadding() + floatingBottomPadding + 12.dp
             )
         ) {
+            // ========== 自定义区域（无Card，平铺item） ==========
             item {
-                SmallTitle(text = stringResource(R.string.settings_section_customization))
+                SuperDropdown(
+                    title = stringResource(id = R.string.settings_theme),
+                    summary = stringResource(id = R.string.settings_theme_summary),
+                    items = themeItems,
+                    selectedIndex = themeMode,
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.Palette,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onSelectedIndexChange = { index ->
+                        prefs.edit { putInt("color_mode", index) }
+                        themeMode = index
+                    }
+                )
             }
-            item {
-                    Card(modifier = Modifier.padding(top = 12.dp).fillMaxWidth()) {
+            if (themeMode in 0..2) {
+                item {
+                    val colorItems = listOf(
+                        stringResource(id = R.string.settings_key_color_default),
+                        stringResource(id = R.string.color_red),
+                        stringResource(id = R.string.color_pink),
+                        stringResource(id = R.string.color_purple),
+                        stringResource(id = R.string.color_deep_purple),
+                        stringResource(id = R.string.color_indigo),
+                        stringResource(id = R.string.color_blue),
+                        stringResource(id = R.string.color_cyan),
+                        stringResource(id = R.string.color_teal),
+                        stringResource(id = R.string.color_green),
+                        stringResource(id = R.string.color_yellow),
+                        stringResource(id = R.string.color_amber),
+                        stringResource(id = R.string.color_orange),
+                        stringResource(id = R.string.color_brown),
+                        stringResource(id = R.string.color_blue_grey),
+                        stringResource(id = R.string.color_sakura),
+                    )
+                    val colorValues = listOf(
+                        0,
+                        Color(0xFFF44336).toArgb(),
+                        Color(0xFFE91E63).toArgb(),
+                        Color(0xFF9C27B0).toArgb(),
+                        Color(0xFF673AB7).toArgb(),
+                        Color(0xFF3F51B5).toArgb(),
+                        Color(0xFF2196F3).toArgb(),
+                        Color(0xFF00BCD4).toArgb(),
+                        Color(0xFF009688).toArgb(),
+                        Color(0xFF4FAF50).toArgb(),
+                        Color(0xFFFFEB3B).toArgb(),
+                        Color(0xFFFFC107).toArgb(),
+                        Color(0xFFFF9800).toArgb(),
+                        Color(0xFF795548).toArgb(),
+                        Color(0xFF607D8F).toArgb(),
+                        Color(0xFFFF9CA8).toArgb(),
+                    )
+                    var keyColorIndex by rememberSaveable {
+                        mutableIntStateOf(
+                            colorValues.indexOf(VisualConfig.keyColor).takeIf { it >= 0 } ?: 0
+                        )
+                    }
                     SuperDropdown(
-                        title = stringResource(id = R.string.settings_theme),
-                        summary = stringResource(id = R.string.settings_theme_summary),
-                        items = themeItems,
-                        selectedIndex = themeMode,
+                        title = stringResource(id = R.string.settings_key_color),
+                        summary = stringResource(id = R.string.settings_key_color_summary),
+                        items = colorItems,
+                        selectedIndex = keyColorIndex,
                         startAction = {
                             Icon(
                                 Icons.Rounded.Palette,
@@ -235,461 +288,428 @@ fun SettingScreen(navigator: TabNavigator) {
                             )
                         },
                         onSelectedIndexChange = { index ->
-                            prefs.edit { putInt("color_mode", index) }
-                            themeMode = index
+                            VisualConfig.keyColor = colorValues[index]
+                            keyColorIndex = index
                         }
                     )
-                    AnimatedVisibility(visible = themeMode in 0..2) {
-                        val colorItems = listOf(
-                            stringResource(id = R.string.settings_key_color_default),
-                            stringResource(id = R.string.color_red),
-                            stringResource(id = R.string.color_pink),
-                            stringResource(id = R.string.color_purple),
-                            stringResource(id = R.string.color_deep_purple),
-                            stringResource(id = R.string.color_indigo),
-                            stringResource(id = R.string.color_blue),
-                            stringResource(id = R.string.color_cyan),
-                            stringResource(id = R.string.color_teal),
-                            stringResource(id = R.string.color_green),
-                            stringResource(id = R.string.color_yellow),
-                            stringResource(id = R.string.color_amber),
-                            stringResource(id = R.string.color_orange),
-                            stringResource(id = R.string.color_brown),
-                            stringResource(id = R.string.color_blue_grey),
-                            stringResource(id = R.string.color_sakura),
-                        )
-                        val colorValues = listOf(
-                            0,
-                            Color(0xFFF44336).toArgb(),
-                            Color(0xFFE91E63).toArgb(),
-                            Color(0xFF9C27B0).toArgb(),
-                            Color(0xFF673AB7).toArgb(),
-                            Color(0xFF3F51B5).toArgb(),
-                            Color(0xFF2196F3).toArgb(),
-                            Color(0xFF00BCD4).toArgb(),
-                            Color(0xFF009688).toArgb(),
-                            Color(0xFF4FAF50).toArgb(),
-                            Color(0xFFFFEB3B).toArgb(),
-                            Color(0xFFFFC107).toArgb(),
-                            Color(0xFFFF9800).toArgb(),
-                            Color(0xFF795548).toArgb(),
-                            Color(0xFF607D8F).toArgb(),
-                            Color(0xFFFF9CA8).toArgb(),
-                        )
-                        var keyColorIndex by rememberSaveable {
-                            mutableIntStateOf(
-                                colorValues.indexOf(VisualConfig.keyColor).takeIf { it >= 0 } ?: 0
-                            )
-                        }
-                        SuperDropdown(
-                            title = stringResource(id = R.string.settings_key_color),
-                            summary = stringResource(id = R.string.settings_key_color_summary),
-                            items = colorItems,
-                            selectedIndex = keyColorIndex,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Palette,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onSelectedIndexChange = { index ->
-                                VisualConfig.keyColor = colorValues[index]
-                                keyColorIndex = index
-                            }
-                        )
-                    }
-                    var enableBlur by rememberSaveable {
-                        mutableStateOf(VisualConfig.enableBlur)
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_enable_blur),
-                        summary = stringResource(id = R.string.settings_enable_blur_summary),
-                        checked = enableBlur,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.BlurOn,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            VisualConfig.enableBlur = it
-                            enableBlur = VisualConfig.enableBlur
-                        }
-                    )
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_floating_bottom_bar),
-                        summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
-                        checked = enableFloatingBottomBar,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Dock,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            VisualConfig.enableFloatingBottomBar = it
-                            enableFloatingBottomBar = it
-                        }
-                    )
-                    AnimatedVisibility(
-                        visible = enableFloatingBottomBar
-                    ) {
-                        var floatingBottomBarAutoHide by rememberSaveable {
-                            mutableStateOf(VisualConfig.floatingBottomBarAutoHide)
-                        }
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_floating_bottom_bar_auto_hide),
-                            summary = stringResource(id = R.string.settings_floating_bottom_bar_auto_hide_summary),
-                            checked = floatingBottomBarAutoHide,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.VisibilityOff,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                VisualConfig.floatingBottomBarAutoHide = it
-                                floatingBottomBarAutoHide = VisualConfig.floatingBottomBarAutoHide
-                            }
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = enableFloatingBottomBar
-                    ) {
-                        var floatingBottomBarScrollHide by rememberSaveable {
-                            mutableStateOf(VisualConfig.floatingBottomBarScrollHide)
-                        }
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_floating_bottom_bar_scroll_hide),
-                            summary = stringResource(id = R.string.settings_floating_bottom_bar_scroll_hide_summary),
-                            checked = floatingBottomBarScrollHide,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.SwapVert,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                VisualConfig.floatingBottomBarScrollHide = it
-                                floatingBottomBarScrollHide = VisualConfig.floatingBottomBarScrollHide
-                            }
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = enableFloatingBottomBar && enableBlur
-                    ) {
-                        var enableLiquidGlass by rememberSaveable {
-                            mutableStateOf(VisualConfig.enableLiquidGlass)
-                        }
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_enable_liquid_glass),
-                            summary = stringResource(id = R.string.settings_enable_liquid_glass_summary),
-                            checked = enableLiquidGlass,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.AutoFixHigh,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                VisualConfig.enableLiquidGlass = it
-                                enableLiquidGlass = VisualConfig.enableLiquidGlass
-                            }
-                        )
-                    }
-                    SuperDropdown(
-                        title = stringResource(id = R.string.settings_home_layout_style),
-                        summary = stringResource(id = R.string.settings_home_layout_style_summary),
-                        items = homeLayoutItems,
-                        selectedIndex = homeLayoutIndex,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Dashboard,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onSelectedIndexChange = { index ->
-                            prefs.edit { putString("home_layout_style", homeLayoutValues[index]) }
-                            currentHomeLayout = homeLayoutValues[index]
-                        }
-                    )
-                    SuperArrow(
-                        title = stringResource(id = R.string.settings_nav_layout_title),
-                        summary = stringResource(id = R.string.settings_nav_layout_summary),
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Menu,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onClick = {
-                            navigator.navigate("navigation_layout")
-                        }
-                    )
-                    SuperArrow(
-                        title = stringResource(id = R.string.settings_page_scale),
-                        summary = stringResource(id = R.string.settings_page_scale_summary),
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.AspectRatio,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        endActions = {
-                            Text(
-                                text = "${(sliderValue * 100).toInt()}%",
-                                color = colorScheme.onSurfaceVariantActions
-                            )
-                        },
-                        onClick = { showScaleDialog.value = !showScaleDialog.value },
-                        holdDownState = showScaleDialog.value,
-                        bottomAction = {
-                            Slider(
-                                value = sliderValue,
-                                onValueChange = { sliderValue = it },
-                                onValueChangeFinished = {
-                                    PageScaleUtils.setScale(sliderValue)
-                                },
-                                valueRange = 0.8f..1.1f,
-                                showKeyPoints = true,
-                                keyPoints = listOf(0.8f, 0.9f, 1f, 1.1f),
-                                magnetThreshold = 0.01f,
-                                hapticEffect = SliderDefaults.SliderHapticEffect.Step,
-                            )
-                        }
-                    )
-                    ScaleDialog(
-                        showDialog = showScaleDialog.value,
-                        onDismissRequest = { showScaleDialog.value = false },
-                        scaleState = { PageScaleUtils.currentScale },
-                        onScaleChange = {
-                            PageScaleUtils.setScale(it)
-                            sliderValue = it
-                        }
-                    )
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        var predictiveBackEnabled by rememberSaveable {
-                            mutableStateOf(VisualConfig.predictiveBackGesture)
-                        }
-                        val activity = LocalContext.current as? android.app.Activity
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_predictive_back_gesture),
-                            summary = stringResource(id = R.string.settings_predictive_back_gesture_summary),
-                            checked = predictiveBackEnabled,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Adb,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = { newValue ->
-                                VisualConfig.predictiveBackGesture = newValue
-                                predictiveBackEnabled = newValue
-                                APApplication.applyPredictiveBackConfig(
-                                    activity?.applicationInfo ?: return@SuperSwitch,
-                                    newValue
-                                )
-                                activity?.recreate()
-                            }
-                        )
-                    }
                 }
             }
             item {
-                SmallTitle(text = stringResource(R.string.settings_section_kernel))
+                var enableBlur by rememberSaveable {
+                    mutableStateOf(VisualConfig.enableBlur)
+                }
+                SuperSwitch(
+                    title = stringResource(id = R.string.settings_enable_blur),
+                    summary = stringResource(id = R.string.settings_enable_blur_summary),
+                    checked = enableBlur,
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.BlurOn,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onCheckedChange = {
+                        VisualConfig.enableBlur = it
+                        enableBlur = VisualConfig.enableBlur
+                    }
+                )
             }
             item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                    if (kPatchReady) {
-                        val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
-                        val clearKeyDialogContent =
-                            stringResource(id = R.string.settings_clear_super_key_dialog)
-                        SuperArrow(
-                            title = stringResource(R.string.clear_super_key),
-                            summary = stringResource(R.string.clear_super_key_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.VpnKey,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onClick = { showClearKeyDialog.value = true }
+                var enableFloatingBottomBarLocal by rememberSaveable {
+                    mutableStateOf(VisualConfig.enableFloatingBottomBar)
+                }
+                SuperSwitch(
+                    title = stringResource(id = R.string.settings_floating_bottom_bar),
+                    summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
+                    checked = enableFloatingBottomBarLocal,
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.Dock,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
                         )
-                        if (showClearKeyDialog.value) {
-                            SuperDialog(
-                                show = showClearKeyDialog.value,
-                                title = clearKeyDialogTitle,
-                                summary = clearKeyDialogContent
+                    },
+                    onCheckedChange = {
+                        VisualConfig.enableFloatingBottomBar = it
+                        enableFloatingBottomBar = it
+                        enableFloatingBottomBarLocal = it
+                    }
+                )
+            }
+            if (enableFloatingBottomBar) {
+                item {
+                    var floatingBottomBarAutoHide by rememberSaveable {
+                        mutableStateOf(VisualConfig.floatingBottomBarAutoHide)
+                    }
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_floating_bottom_bar_auto_hide),
+                        summary = stringResource(id = R.string.settings_floating_bottom_bar_auto_hide_summary),
+                        checked = floatingBottomBarAutoHide,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.VisibilityOff,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            VisualConfig.floatingBottomBarAutoHide = it
+                            floatingBottomBarAutoHide = VisualConfig.floatingBottomBarAutoHide
+                        }
+                    )
+                }
+            }
+            if (enableFloatingBottomBar) {
+                item {
+                    var floatingBottomBarScrollHide by rememberSaveable {
+                        mutableStateOf(VisualConfig.floatingBottomBarScrollHide)
+                    }
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_floating_bottom_bar_scroll_hide),
+                        summary = stringResource(id = R.string.settings_floating_bottom_bar_scroll_hide_summary),
+                        checked = floatingBottomBarScrollHide,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.SwapVert,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            VisualConfig.floatingBottomBarScrollHide = it
+                            floatingBottomBarScrollHide = VisualConfig.floatingBottomBarScrollHide
+                        }
+                    )
+                }
+            }
+            if (enableFloatingBottomBar && VisualConfig.enableBlur) {
+                item {
+                    var enableLiquidGlass by rememberSaveable {
+                        mutableStateOf(VisualConfig.enableLiquidGlass)
+                    }
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_enable_liquid_glass),
+                        summary = stringResource(id = R.string.settings_enable_liquid_glass_summary),
+                        checked = enableLiquidGlass,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.AutoFixHigh,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            VisualConfig.enableLiquidGlass = it
+                            enableLiquidGlass = VisualConfig.enableLiquidGlass
+                        }
+                    )
+                }
+            }
+            item {
+                SuperDropdown(
+                    title = stringResource(id = R.string.settings_home_layout_style),
+                    summary = stringResource(id = R.string.settings_home_layout_style_summary),
+                    items = homeLayoutItems,
+                    selectedIndex = homeLayoutIndex,
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.Dashboard,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onSelectedIndexChange = { index ->
+                        prefs.edit { putString("home_layout_style", homeLayoutValues[index]) }
+                        currentHomeLayout = homeLayoutValues[index]
+                    }
+                )
+            }
+            item {
+                SuperArrow(
+                    title = stringResource(id = R.string.settings_nav_layout_title),
+                    summary = stringResource(id = R.string.settings_nav_layout_summary),
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.Menu,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onClick = {
+                        navigator.navigate("navigation_layout")
+                    }
+                )
+            }
+            item {
+                SuperArrow(
+                    title = stringResource(id = R.string.settings_page_scale),
+                    summary = stringResource(id = R.string.settings_page_scale_summary),
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.AspectRatio,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    endActions = {
+                        Text(
+                            text = "${(sliderValue * 100).toInt()}%",
+                            color = colorScheme.onSurfaceVariantActions
+                        )
+                    },
+                    onClick = { showScaleDialog.value = !showScaleDialog.value },
+                    holdDownState = showScaleDialog.value,
+                    bottomAction = {
+                        Slider(
+                            value = sliderValue,
+                            onValueChange = { sliderValue = it },
+                            onValueChangeFinished = {
+                                PageScaleUtils.setScale(sliderValue)
+                            },
+                            valueRange = 0.8f..1.1f,
+                            showKeyPoints = true,
+                            keyPoints = listOf(0.8f, 0.9f, 1f, 1.1f),
+                            magnetThreshold = 0.01f,
+                            hapticEffect = SliderDefaults.SliderHapticEffect.Step,
+                        )
+                    }
+                )
+            }
+            item {
+                ScaleDialog(
+                    showDialog = showScaleDialog.value,
+                    onDismissRequest = { showScaleDialog.value = false },
+                    scaleState = { PageScaleUtils.currentScale },
+                    onScaleChange = {
+                        PageScaleUtils.setScale(it)
+                        sliderValue = it
+                    }
+                )
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                item {
+                    var predictiveBackEnabled by rememberSaveable {
+                        mutableStateOf(VisualConfig.predictiveBackGesture)
+                    }
+                    val activity = LocalContext.current as? android.app.Activity
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_predictive_back_gesture),
+                        summary = stringResource(id = R.string.settings_predictive_back_gesture_summary),
+                        checked = predictiveBackEnabled,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.Adb,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = { newValue ->
+                            VisualConfig.predictiveBackGesture = newValue
+                            predictiveBackEnabled = newValue
+                            APApplication.applyPredictiveBackConfig(
+                                activity?.applicationInfo ?: return@SuperSwitch,
+                                newValue
+                            )
+                            activity?.recreate()
+                        }
+                    )
+                }
+            }
+
+            // ========== Kpatch / APatch 内核相关 ==========
+            if (kPatchReady) {
+                item {
+                    val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
+                    val clearKeyDialogContent =
+                        stringResource(id = R.string.settings_clear_super_key_dialog)
+                    SuperArrow(
+                        title = stringResource(R.string.clear_super_key),
+                        summary = stringResource(R.string.clear_super_key_summary),
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.VpnKey,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onClick = { showClearKeyDialog.value = true }
+                    )
+                    if (showClearKeyDialog.value) {
+                        SuperDialog(
+                            show = showClearKeyDialog.value,
+                            title = clearKeyDialogTitle,
+                            summary = clearKeyDialogContent
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
-                                ) {
-                                    TextButton(
-                                        stringResource(id = android.R.string.cancel),
-                                        onClick = { showClearKeyDialog.value = false },
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    Spacer(Modifier.width(20.dp))
-                                    TextButton(
-                                        stringResource(id = android.R.string.ok),
-                                        onClick = {
-                                            APatchKeyHelper.clearConfigKey()
-                                            APApplication.superKey = ""
-                                            showClearKeyDialog.value = false
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        colors = ButtonDefaults.textButtonColorsPrimary(),
-                                    )
-                                }
+                                TextButton(
+                                    stringResource(id = android.R.string.cancel),
+                                    onClick = { showClearKeyDialog.value = false },
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Spacer(Modifier.width(20.dp))
+                                TextButton(
+                                    stringResource(id = android.R.string.ok),
+                                    onClick = {
+                                        APatchKeyHelper.clearConfigKey()
+                                        APApplication.superKey = ""
+                                        showClearKeyDialog.value = false
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.textButtonColorsPrimary(),
+                                )
                             }
                         }
-                    }
-                    SuperSwitch(
-                        title = stringResource(id = R.string.settings_donot_store_superkey),
-                        summary = stringResource(id = R.string.settings_donot_store_superkey_summary),
-                        checked = bSkipStoreSuperKey,
-                        startAction = {
-                            Icon(
-                                Icons.Rounded.Lock,
-                                null,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        },
-                        onCheckedChange = {
-                            bSkipStoreSuperKey = it
-                            APatchKeyHelper.setShouldSkipStoreSuperKey(bSkipStoreSuperKey)
-                        }
-                    )
-                    if (kPatchReady && aPatchReady) {
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_global_namespace_mode),
-                            summary = stringResource(id = R.string.settings_global_namespace_mode_summary),
-                            checked = isGlobalNamespaceEnabled,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.AccountTree,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                setGlobalNamespaceEnabled(
-                                    if (isGlobalNamespaceEnabled) "0" else "1"
-                                )
-                                isGlobalNamespaceEnabled = it
-                            }
-                        )
-                    }
-                    if (kPatchReady) {
-                        SuperArrow(
-                            title = stringResource(R.string.setting_reset_su_path),
-                            summary = stringResource(R.string.setting_reset_su_path_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Restore,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onClick = { showResetSuPathDialog.value = true }
-                        )
                     }
                 }
+            }
+            item {
+                SuperSwitch(
+                    title = stringResource(id = R.string.settings_donot_store_superkey),
+                    summary = stringResource(id = R.string.settings_donot_store_superkey_summary),
+                    checked = bSkipStoreSuperKey,
+                    startAction = {
+                        Icon(
+                            Icons.Rounded.Lock,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onCheckedChange = {
+                        bSkipStoreSuperKey = it
+                        APatchKeyHelper.setShouldSkipStoreSuperKey(bSkipStoreSuperKey)
+                    }
+                )
             }
             if (kPatchReady && aPatchReady) {
                 item {
-                    SmallTitle(text = stringResource(R.string.settings_section_module))
-                }
-                item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                        var enableWebDebugging by rememberSaveable {
-                            mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_global_namespace_mode),
+                        summary = stringResource(id = R.string.settings_global_namespace_mode_summary),
+                        checked = isGlobalNamespaceEnabled,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.AccountTree,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            setGlobalNamespaceEnabled(
+                                if (isGlobalNamespaceEnabled) "0" else "1"
+                            )
+                            isGlobalNamespaceEnabled = it
                         }
-                        SuperSwitch(
-                            title = stringResource(id = R.string.enable_web_debugging),
-                            summary = stringResource(id = R.string.enable_web_debugging_summary),
-                            checked = enableWebDebugging,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.BugReport,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = { isChecked ->
-                                enableWebDebugging = isChecked
-                                APApplication.sharedPreferences.edit {
-                                    putBoolean("enable_web_debugging", isChecked)
-                                }
-                            }
-                        )
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_magic_mount),
-                            summary = stringResource(id = R.string.settings_magic_mount_summary),
-                            checked = isMagicMountEnabled,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Extension,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                setMagicMountEnabled(it)
-                                isMagicMountEnabled = it
-                            }
-                        )
-                        SuperSwitch(
-                            title = stringResource(id = R.string.settings_hide_service),
-                            summary = stringResource(id = R.string.settings_hide_service_summary),
-                            checked = isHideServiceEnabled,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.VisibilityOff,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onCheckedChange = {
-                                setHideServiceEnabled(it)
-                                isHideServiceEnabled = it
-                            }
-                        )
-                        SuperArrow(
-                            title = stringResource(R.string.send_log),
-                            summary = stringResource(R.string.send_log_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.AutoMirrored.Rounded.Send,
-                                    null,
-                                    modifier = Modifier.padding(end = 6.dp)
-                                )
-                            },
-                            onClick = {
-                                showLogBottomSheet.value = true
-                            }
-                        )
+                    )
+                }
+            }
+            if (kPatchReady) {
+                item {
+                    SuperArrow(
+                        title = stringResource(R.string.setting_reset_su_path),
+                        summary = stringResource(R.string.setting_reset_su_path_summary),
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.Restore,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onClick = { showResetSuPathDialog.value = true }
+                    )
+                }
+            }
+
+            // ========== Module模块设置 ==========
+            if (kPatchReady && aPatchReady) {
+                item {
+                    var enableWebDebugging by rememberSaveable {
+                        mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                     }
+                    SuperSwitch(
+                        title = stringResource(id = R.string.enable_web_debugging),
+                        summary = stringResource(id = R.string.enable_web_debugging_summary),
+                        checked = enableWebDebugging,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.BugReport,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = { isChecked ->
+                            enableWebDebugging = isChecked
+                            APApplication.sharedPreferences.edit {
+                                putBoolean("enable_web_debugging", isChecked)
+                            }
+                        }
+                    )
                 }
                 item {
-                    Spacer(Modifier.height(12.dp))
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_magic_mount),
+                        summary = stringResource(id = R.string.settings_magic_mount_summary),
+                        checked = isMagicMountEnabled,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.Extension,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            setMagicMountEnabled(it)
+                            isMagicMountEnabled = it
+                        }
+                    )
                 }
+                item {
+                    SuperSwitch(
+                        title = stringResource(id = R.string.settings_hide_service),
+                        summary = stringResource(id = R.string.settings_hide_service_summary),
+                        checked = isHideServiceEnabled,
+                        startAction = {
+                            Icon(
+                                Icons.Rounded.VisibilityOff,
+                                null,
+                                modifier = Modifier.padding(end = 6.dp)
+                            )
+                        },
+                        onCheckedChange = {
+                            setHideServiceEnabled(it)
+                            isHideServiceEnabled = it
+                        }
+                    )
+                }
+            }
+
+            // ========== 关于 ==========
+            item {
+                SuperArrow(
+                    title = stringResource(R.string.send_log),
+                    summary = stringResource(R.string.send_log_summary),
+                    startAction = {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.Send,
+                            null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    },
+                    onClick = {
+                        showLogBottomSheet.value = true
+                    }
+                )
+            }
+            item {
+                Spacer(Modifier.height(12.dp))
             }
         }
     }
 }
+
 @Composable
 fun LogBottomSheet(
     showLogBottomSheet: MutableState<Boolean>,
@@ -748,6 +768,7 @@ fun LogBottomSheet(
         }
     }
 }
+
 @Composable
 fun ResetSUPathDialog(showDialog: MutableState<Boolean>) {
     val context = LocalContext.current
