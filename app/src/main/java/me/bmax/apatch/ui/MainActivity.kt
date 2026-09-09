@@ -92,7 +92,6 @@ import me.bmax.apatch.ui.component.FloatingBottomBarItem
 import me.bmax.apatch.ui.component.rememberConfirmCallback
 import me.bmax.apatch.ui.component.rememberConfirmDialog
 import me.bmax.apatch.ui.component.rememberLoadingDialog
-import me.bmax.apatch.ui.component.UpdateDialog
 import me.bmax.apatch.ui.screen.BottomBarDestination
 import me.bmax.apatch.ui.screen.ExternalNavEvent
 import me.bmax.apatch.ui.screen.LocalExternalNavEvent
@@ -108,7 +107,6 @@ import me.bmax.apatch.ui.theme.migrateColorModeIfNeeded
 import me.bmax.apatch.ui.MainPagerState
 import me.bmax.apatch.ui.viewmodel.APModuleViewModel
 import me.bmax.apatch.util.ModuleParser
-import me.bmax.apatch.util.UpdateChecker
 import me.bmax.apatch.util.VisualConfig
 import me.bmax.apatch.util.ui.defaultHazeEffect
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
@@ -263,28 +261,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                     val loadingDialog = rememberLoadingDialog()
                     var showUpdateDialog by remember { mutableStateOf(false) }
-                    var updateChecked by remember { mutableStateOf(false) }
                     
-                    LaunchedEffect(Unit) {
-                        if (!updateChecked) {
-                            // ========== 完全禁用启动自动更新 ==========
-                            /*
-                            val checkUpdate = APApplication.sharedPreferences.getBoolean("check_update", false)
-                            if (checkUpdate) {
-                                val hasUpdate = withContext(Dispatchers.IO) {
-                                    try {
-                                        UpdateChecker.checkUpdate()
-                                    } catch (e: Exception) {
-                                        false
-                                    }
-                                }
-                                if (hasUpdate) {
-                                    showUpdateDialog = true
-                                }
-                            }
-                            */
-                            updateChecked = true
-                        }
                     }
 
 
@@ -384,13 +361,13 @@ class MainActivity : AppCompatActivity() {
                     }
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
-                            blurRadius = 18.dp,
                             backgroundColor = MiuixTheme.colorScheme.surface,
-                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.55f))
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.4f))
                         )
                     } else {
                         HazeStyle.Unspecified
                     }
+
                     val backdrop = if (enableFloatingBottomBar && hazeState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val surfaceColorState = rememberUpdatedState(MiuixTheme.colorScheme.surface)
                         rememberLayerBackdrop {
@@ -398,6 +375,7 @@ class MainActivity : AppCompatActivity() {
                             drawContent()
                         }
                     } else null
+
                     LaunchedEffect(enableBlur, enableFloatingBottomBar, enableLiquidGlass) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                             if (enableBlur) VisualConfig.enableBlur = false
@@ -405,6 +383,7 @@ class MainActivity : AppCompatActivity() {
                             if (enableLiquidGlass) VisualConfig.enableLiquidGlass = false
                         }
                     }
+
                     Scaffold(
                         containerColor = MiuixTheme.colorScheme.surface,
                         bottomBar = {
@@ -442,40 +421,29 @@ class MainActivity : AppCompatActivity() {
                         CompositionLocalProvider(
                             LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
                         ) {
-                            MainScreen(
-                                modifier = Modifier
-                                    .then(
-                                        if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
-                                        else Modifier
-                                    )
-                                    .padding(bottom = if (showBottomBar) {
-                                        if (enableFloatingBottomBar) 0.dp else 65.dp
-                                    } else 0.dp)
-                                    // 修复：移除 showBottomBar，开启模糊就设置 hazeSource
-                                    .then(
-                                        if (enableBlur && hazeState != null) Modifier.hazeSource(state = hazeState)
-                                        else Modifier
-                                    )
-                                    .then(
-                                        if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
-                                            Modifier.layerBackdrop(backdrop)
-                                        else Modifier
-                                    ),
-                                onExternalNavConsumed = { navEventConsumed = true },
-                            )
+                        MainScreen(
+                            modifier = Modifier
+                                .then(
+                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
+                                    else Modifier
+                                )
+                                .padding(bottom = if (showBottomBar) {
+                                    if (enableFloatingBottomBar) 0.dp else 65.dp
+                                } else 0.dp)
+                                .then(
+                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
+                                    else Modifier
+                                )
+                                .then(
+                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                        Modifier.layerBackdrop(backdrop)
+                                    else Modifier
+                                ),
+                            onExternalNavConsumed = { navEventConsumed = true },
+                        )
                         } // end LocalExternalNavEvent CompositionLocalProvider
                     } // end Scaffold content
 
-                // Update dialog
-                if (showUpdateDialog) {
-                    UpdateDialog(
-                        onDismiss = { showUpdateDialog = false },
-                        onUpdate = {
-                            UpdateChecker.openUpdateUrl(applicationContext)
-                            showUpdateDialog = false
-                        }
-                    )
-                }
                     } // end CompositionLocalProvider
                 } // end outer CompositionLocalProvider
             } // end APatchTheme
