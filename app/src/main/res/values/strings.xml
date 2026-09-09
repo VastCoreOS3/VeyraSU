@@ -24,7 +24,6 @@
     <string name="reboot_edl">Reboot to EDL</string>
     <string name="reboot_fastbootd">Reboot to FastbootD</string>
     <string name="about">About</string>
-    <!-- <string name="settings_app_language">Language</string> -->
     <string name="system_default">System default</string>
     <string name="settings_page_scale">App DPI</string>
     <string name="settings_nav_layout_title">Navigation Layout</string>
@@ -36,12 +35,6 @@
     <string name="settings_global_namespace_mode_summary">All root sessions use the global mount namespace</string>
     <string name="settings_clear_super_key_dialog">Do you really want to proceed?</string>
 
-    <!-- <string name="settings_check_update">Check for updates</string> -->
-    <!-- <string name="settings_check_update_summary">Automatically check for updates when opening the app</string> -->
-    <string name="update_available_title">Update Available</string>
-    <string name="update_available_message">A new version of VeyraSU is available. Update now?</string>
-    <string name="update_close">Later</string>
-    <string name="update_action">Update Now</string>
     <string name="unofficial_version_title">Unofficial Version</string>
     <string name="unofficial_version_message">You are using a third-party VeyraSU manager, which may cause financial loss. Please download the official app!</string>
     <string name="go_to_github">Go to Github</string>
@@ -354,12 +347,6 @@
     <string name="settings_floating_bottom_bar_scroll_hide_summary">Hide the floating navigation bar when scrolling down</string>
     <string name="settings_enable_liquid_glass">Liquid glass</string>
     <string name="settings_enable_liquid_glass_summary">Glass effects for floating bottom bar</string>
-    <!-- <string name="settings_section_kernel">Kernel Patch</string> -->
-    <!-- <string name="settings_section_module">Functions</string> -->
-    <!-- <string name="settings_section_customization">Customization</string> -->
-    <!-- <string name="settings_section_general">General</string> -->
-    <!-- <string name="settings_section_about">Logs</string> -->
-
     <!-- Seed Color -->
     <string name="settings_key_color">Seed color</string>
     <string name="settings_key_color_summary">Choose seed color for Monet theme</string>
