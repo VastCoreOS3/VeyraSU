@@ -311,11 +311,11 @@
     <string name="settings_floating_bottom_bar_scroll_hide_summary">向下滑动时隐藏悬浮导航栏</string>
     <string name="settings_enable_liquid_glass">液态玻璃</string>
     <string name="settings_enable_liquid_glass_summary">为悬浮底栏添加玻璃效果</string>
-    <string name="settings_section_kernel">内核补丁</string>
-    <string name="settings_section_module">功能</string>
-    <string name="settings_section_customization">自定义</string>
-    <string name="settings_section_general">通用</string>
-    <string name="settings_section_about">日志</string>
+    <!-- <string name="settings_section_kernel">内核补丁</string> -->
+    <!-- <string name="settings_section_module">功能</string> -->
+    <!-- <string name="settings_section_customization">自定义</string> -->
+    <!-- <string name="settings_section_general">通用</string> -->
+    <!-- <string name="settings_section_about">日志</string> -->
 
     <!-- Seed Color -->
     <string name="settings_key_color">种子颜色</string>
