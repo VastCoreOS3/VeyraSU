@@ -1,5 +1,4 @@
 package me.bmax.apatch.ui.screen
-
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -164,7 +163,6 @@ fun SettingScreen(navigator: TabNavigator) {
             }
         }
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -208,7 +206,6 @@ fun SettingScreen(navigator: TabNavigator) {
         var currentHomeLayout by rememberSaveable { mutableStateOf(prefs.getString("home_layout_style", "default") ?: "default") }
         val homeLayoutIndex = homeLayoutValues.indexOf(currentHomeLayout).let { if (it == -1) 0 else it }
         val floatingBottomPadding = if (LocalEnableFloatingBottomBar.current) 88.dp else 0.dp
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -220,9 +217,6 @@ fun SettingScreen(navigator: TabNavigator) {
                 bottom = paddingValues.calculateBottomPadding() + floatingBottomPadding + 12.dp
             )
         ) {
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_customization))
-            }
             item {
                 Card(modifier = Modifier.padding(top = 12.dp).fillMaxWidth()) {
                     SuperDropdown(
@@ -506,13 +500,7 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_kernel))
-            }
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+
                     if (kPatchReady) {
                         val clearKeyDialogTitle = stringResource(id = R.string.clear_super_key)
                         val clearKeyDialogContent =
@@ -609,14 +597,8 @@ fun SettingScreen(navigator: TabNavigator) {
                             onClick = { showResetSuPathDialog.value = true }
                         )
                     }
-                }
-            }
-            if (kPatchReady && aPatchReady) {
-                item {
-                    SmallTitle(text = stringResource(R.string.settings_section_module))
-                }
-                item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
+
+                    if (kPatchReady && aPatchReady) {
                         var enableWebDebugging by rememberSaveable {
                             mutableStateOf(prefs.getBoolean("enable_web_debugging", false))
                         }
@@ -671,20 +653,7 @@ fun SettingScreen(navigator: TabNavigator) {
                             }
                         )
                     }
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_general))
-            }
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                }
-            }
-            item {
-                SmallTitle(text = stringResource(R.string.settings_section_about))
-            }
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+
                     SuperArrow(
                         title = stringResource(R.string.send_log),
                         summary = stringResource(R.string.send_log_summary),
