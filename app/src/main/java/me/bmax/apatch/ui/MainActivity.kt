@@ -384,13 +384,13 @@ class MainActivity : AppCompatActivity() {
                     }
                     val hazeStyle = if (enableBlur && hazeState != null) {
                         HazeStyle(
+                            blurRadius = 18.dp,
                             backgroundColor = MiuixTheme.colorScheme.surface,
-                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.4f))
+                            tint = HazeTint(MiuixTheme.colorScheme.surface.copy(0.55f))
                         )
                     } else {
                         HazeStyle.Unspecified
                     }
-
                     val backdrop = if (enableFloatingBottomBar && hazeState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val surfaceColorState = rememberUpdatedState(MiuixTheme.colorScheme.surface)
                         rememberLayerBackdrop {
@@ -398,7 +398,6 @@ class MainActivity : AppCompatActivity() {
                             drawContent()
                         }
                     } else null
-
                     LaunchedEffect(enableBlur, enableFloatingBottomBar, enableLiquidGlass) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                             if (enableBlur) VisualConfig.enableBlur = false
@@ -406,7 +405,6 @@ class MainActivity : AppCompatActivity() {
                             if (enableLiquidGlass) VisualConfig.enableLiquidGlass = false
                         }
                     }
-
                     Scaffold(
                         containerColor = MiuixTheme.colorScheme.surface,
                         bottomBar = {
@@ -444,26 +442,27 @@ class MainActivity : AppCompatActivity() {
                         CompositionLocalProvider(
                             LocalExternalNavEvent provides if (navEventConsumed) null else externalNavEvent
                         ) {
-                        MainScreen(
-                            modifier = Modifier
-                                .then(
-                                    if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
-                                    else Modifier
-                                )
-                                .padding(bottom = if (showBottomBar) {
-                                    if (enableFloatingBottomBar) 0.dp else 65.dp
-                                } else 0.dp)
-                                .then(
-                                    if (enableBlur && showBottomBar && hazeState != null) Modifier.hazeSource(state = hazeState)
-                                    else Modifier
-                                )
-                                .then(
-                                    if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
-                                        Modifier.layerBackdrop(backdrop)
-                                    else Modifier
-                                ),
-                            onExternalNavConsumed = { navEventConsumed = true },
-                        )
+                            MainScreen(
+                                modifier = Modifier
+                                    .then(
+                                        if (enableFloatingBottomBar) Modifier.nestedScroll(scrollConnection)
+                                        else Modifier
+                                    )
+                                    .padding(bottom = if (showBottomBar) {
+                                        if (enableFloatingBottomBar) 0.dp else 65.dp
+                                    } else 0.dp)
+                                    // 修复：移除 showBottomBar，开启模糊就设置 hazeSource
+                                    .then(
+                                        if (enableBlur && hazeState != null) Modifier.hazeSource(state = hazeState)
+                                        else Modifier
+                                    )
+                                    .then(
+                                        if (enableFloatingBottomBar && enableBlur && showBottomBar && backdrop != null)
+                                            Modifier.layerBackdrop(backdrop)
+                                        else Modifier
+                                    ),
+                                onExternalNavConsumed = { navEventConsumed = true },
+                            )
                         } // end LocalExternalNavEvent CompositionLocalProvider
                     } // end Scaffold content
 
